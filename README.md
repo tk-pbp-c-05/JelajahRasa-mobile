@@ -1,23 +1,28 @@
-# 🌍 JelajahRasa 🌍
-https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/
+# 🌍 🍜 JelajahRasa 🍜🌍
+# 📱Available for your Android Phone!📱
+>**Link to website:**
+>https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/
+>**Link to APK:**
+> \<to be added\>
 
 ## 📑 Table of Contents 📑:
 
-- [🌍 JelajahRasa 🌍](#jelajahrasa)
-    - [📑 Table of Contents 📑](#📑-table-of-contents-📑)
-    - [👥 Our Team 👥](#👥-anggota-kelompok-👥)
-    - [📚 Latar Belakang 📚](#📚-latar-belakang-aplikasi-📚)
-    - [📂 Daftar Modul 📂](#📂-daftar-modul-📂)
-        - [🍽️ Food Catalog 🍽️](#🍽️-food-catalog-🍽️)
-        - [❤️ My Favorite Dishes ❤️](#❤️-my-favorite-dishes-❤️)
-        - [💬 Food Reviews & Ratings 💬](#💬-food-reviews-&-ratings-💬)
-        - [➕ Add a New Dish ➕](#➕-add-a-new-dish-➕)
-        - [🔒 User Profile Management 🔒](#🔒-user-profile-management-🔒)
-    - [🎭 Role Pengguna 🎭](#🎭-role-pengguna-🎭)
-        - [👨‍💼 User 👨‍💼](#👨‍💼-user-👨‍💼)
-        - [🛡️ Admin 🛡️](#🛡️-admin-🛡️)
-        - [👤 Guest 👤](#👤-guest-👤)
-    - [📊 Sumber Dataset 📊](#📊-sumber-dataset-📊)
+- [🌍 JelajahRasa 🌍](#-jelajahrasa-)
+    - [📑 Table of Contents 📑](#-table-of-contents-)
+    - [👥 Our Team 👥](#-anggota-kelompok-)
+    - [📚 Latar Belakang 📚](#-latar-belakang-aplikasi-)
+    - [📂 Daftar Modul 📂](#-daftar-modul-)
+        - [🍽️ Food Catalog 🍽️](#️-food-catalog-️)
+        - [❤️ My Favorite Dishes ❤️](#️-my-favorite-dishes-️)
+        - [💬 Food Reviews & Ratings 💬](#-food-reviews--ratings-)
+        - [➕ Add a New Dish ➕](#-add-a-new-dish-)
+        - [🔒 User Profile Management 🔒](#-user-profile-management-)
+        - [💬 Community 💬](#-community-)
+    - [🎭 Role Pengguna 🎭](#-role-pengguna-)
+        - [👨‍💼 User 👨‍💼](#-user-)
+        - [🛡️ Admin 🛡️](#️-admin-️)
+        - [👤 Guest 👤](#-guest-)
+    - [📊 Sumber Dataset 📊](#-sumber-dataset-)
 
 ### 👥 Anggota Kelompok 👥
 - Muhammad Satria Aleka Ramadha (2306245094)
@@ -49,24 +54,32 @@ Pada halaman Add a New Dish, pengguna dapat mengusulkan makanan baru yang belum 
 ### 🔒 User Profile Management 🔒
 Modul ini memungkinkan pengguna untuk membuat dan mengelola profil mereka sendiri di aplikasi. Pengguna bisa menyimpan informasi seperti nama, makanan favorit, serta interaksi lain seperti riwayat ulasan atau rating yang telah diberikan. Informasi pada profil ini dapat dilihat oleh user satu sama lain.
 
+### 💬 Community 💬
+Modul ini memungkinkan pengguna untuk berinteraksi dengan pengguna lain melalui fitur diskusi dan rekomendasi. Pengguna dapat membagikan pengalaman kuliner mereka, memberikan rekomendasi, dan berdiskusi tentang makanan yang telah mereka coba.
+
 ## 🎭 Role Pengguna 🎭
 ### 👨‍💼 User 👨‍💼
 - Mengakses fitur My Favorite Dishes.
+- Mengakses fitur Community.
+- Mengakses fitur Food Reviews & Ratings.
 - Memberikan ulasan serta rating pada suatu makanan.
 - Melihat profile user lain yang menampilkan nama, makanan favorit, riwayat ulasan, dan rating.
 - Mengajukan permintaan untuk menambahkan makanan baru pada aplikasi.
+
 ### 🛡️ Admin 🛡️
 - Meninjau dan menyetujui makanan yang direquest pengguna untuk diunggah.
 - Meninjau ulasan yang diberi pengguna (family-friendly) serta memiliki akses untuk menghapus ulasan tersebut.
+
 ### 👤 Guest 👤
-- Melihat food catalogue, food reviews dan rating
+- Melihat food catalogue dan Food Reviews & Ratings.
 
 ## Pembagian Tugas
-1.Food Catalog : Muhammad Satria Aleka Ramadha (2306245094)
-2.My Favorite Dishes : Kayla Agrata Budiawan (2306245693)
-3.Food Reviews & Ratings : Dionysius Davis (2306213836)
-4.Add a new dish : Rafif Sulaiman Dirvesa (2306222771)
-5.User Profile Management : Daffa Desra Hastiar (2306165490)
+1. Food Catalog : Muhammad Satria Aleka Ramadha (2306245094)
+2. My Favorite Dishes : Kayla Agrata Budiawan (2306245693)
+3. Food Reviews & Ratings : Dionysius Davis (2306213836)
+4. Add a new dish : Rafif Sulaiman Dirvesa (2306222771)
+5. User Profile Management : Daffa Desra Hastiar (2306165490)
+6. Community : Daffa Desra Hastiar (2306165490)
 
 ## 📊 Sumber Dataset 📊
 - https://docs.google.com/spreadsheets/d/1rTiH_IgXek9lh-2nlPvYFJalEkmPvEoOADmcFRpYrQ0/edit?usp=sharing 
