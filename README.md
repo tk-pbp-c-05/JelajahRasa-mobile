@@ -81,6 +81,17 @@ Modul ini memungkinkan pengguna untuk berinteraksi dengan pengguna lain melalui 
 5. User Profile Management : Daffa Desra Hastiar (2306165490)
 6. Community : Daffa Desra Hastiar (2306165490)
 
+## 🔗Alur Pengintegrasian dengan Web Service 🔗
+Untuk mengintegrasikan web service kami (Django) dengan aplikasi mobile kami (Flutter), kami melakukan beberapa langkah sebagai berikut:
+1. Menambahkan dependensi http ke proyek; dependensi ini digunakan untuk bertukar HTTP request.
+2. Menambahkan dependensi `django-cors-headers` ke proyek Django untuk mengizinkan akses dari aplikasi Flutter.
+3. Menambahkan package `pbp_django_auth` ke proyek Flutter untuk keperluan autentikasi dan state management.
+4. Membuat aplikasi autentikasi berupa _login_, _register_, dan _logout_ pada proyek Django kami untuk memberikan otorisasi pada pengguna (misalnya user biasa atau admin).
+5. Memanfaatkan package `pbp_django_auth` untuk mengambil data user yang sedang login dan menggunakan _context_ untuk menyimpan _cookie_ yang memastikan request dari aplikasi ke server merupakan request yang sudah terautentikasi dan terotorisasi.
+6. Pada proyek Flutter ini, kami akan membuat _class_ 'Food` dan _class_ lainnya yang dibuat dalam proyek Django dan memanfaatkan API dari dataset kami dari link berikut:
+    > \< **Link API Menyusul** \>
+7. Dari API tersebut, kami mengubah data JSON menjadi objek Dart yang nantinya akan kami gunakan untuk membuat _class_ pada proyek Flutter kami. Untuk langkah ini, kami menggunakan website https://app.quicktype.io.
+
 ## 📊 Sumber Dataset 📊
 - https://docs.google.com/spreadsheets/d/1rTiH_IgXek9lh-2nlPvYFJalEkmPvEoOADmcFRpYrQ0/edit?usp=sharing 
 - https://food.grab.com/id/id/ 
