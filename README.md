@@ -93,6 +93,9 @@ Untuk mengintegrasikan web service kami (Django) dengan aplikasi mobile kami (Fl
     > \< **Link API Menyusul** \>
 7. Dari API tersebut, kami mengubah data JSON menjadi objek Dart yang nantinya akan kami gunakan untuk membuat _class_ pada proyek Flutter kami. Untuk langkah ini, kami menggunakan website https://app.quicktype.io.
 
+# Link Design Aplikasi
+https://www.figma.com/design/IZGIF5asV8ulgh07nTr4Y8/C05---JelajahRasa-Mobile?node-id=2-380&t=9B26Nm4wHrDvPlgo-1
+
 ## 📊 Sumber Dataset 📊
 - https://docs.google.com/spreadsheets/d/1rTiH_IgXek9lh-2nlPvYFJalEkmPvEoOADmcFRpYrQ0/edit?usp=sharing 
 - https://food.grab.com/id/id/ 
