@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FoodCard extends StatelessWidget {
-  final String image;
+  //final String image;
   final String title;
   final String price;
   final double rating;
@@ -9,7 +9,7 @@ class FoodCard extends StatelessWidget {
 
   const FoodCard({
     super.key,
-    required this.image,
+    //required this.image,
     required this.title,
     required this.price,
     required this.rating,
@@ -24,15 +24,6 @@ class FoodCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.asset(
-              image,
-              height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
           const SizedBox(height: 8),
           Flexible(
             child: Text(
