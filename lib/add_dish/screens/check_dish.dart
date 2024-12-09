@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PendingDishesScreen extends StatefulWidget {
   @override
@@ -6,30 +9,64 @@ class PendingDishesScreen extends StatefulWidget {
 }
 
 class _PendingDishesScreenState extends State<PendingDishesScreen> {
-  TextEditingController _searchController = TextEditingController();
-  
-  // Sample data for pending dishes
-  List<Dish> pendingDishes = [
-    Dish(
+  List<NewDishEntry> pendingDishes = [
+    NewDishEntry(
+      uuid: '1',
       name: 'Pizza',
       flavor: 'Salty',
       category: 'Food',
       vendorName: 'Pizza Hut',
-      price: 12.99,
+      price: 12,
       mapLink: 'https://www.google.com/maps',
-      imageUrl: 'https://via.placeholder.com/100', // Image URL for the dish
+      address: '123 Pizza Street',
+      image: 'https://via.placeholder.com/100',
+      isApproved: false,
+      isRejected: false,
+      status: 'Pending',
+      userUsername: 'admin',
     ),
-    Dish(
+    NewDishEntry(
+      uuid: '2',
       name: 'Burger',
       flavor: 'Savory',
       category: 'Food',
       vendorName: 'McDonalds',
-      price: 8.50,
+      price: 8,
       mapLink: 'https://www.google.com/maps',
-      imageUrl: 'https://via.placeholder.com/100', // Image URL for the dish
+      address: '456 Burger Avenue',
+      image: 'https://via.placeholder.com/100',
+      isApproved: false,
+      isRejected: false,
+      status: 'Pending',
+      userUsername: 'john_doe',
     ),
-    // Add more Dish objects here
   ];
+  bool isLoading = false;
+
+  @override
+  // void initState() {
+  //   super.initState();
+  //   fetchPendingDishes();
+  // }
+
+  // Future<void> fetchPendingDishes() async {
+  //   final response = await http.get(Uri.parse('YOUR_API_ENDPOINT_HERE'));
+
+  //   if (response.statusCode == 200) {
+  //     List<dynamic> data = json.decode(response.body);
+  //     List<NewDishEntry> dishes = data.map((item) => NewDishEntry.fromJson(item)).toList();
+
+  //     // Filter hanya yang status Pending, isApproved false, dan isRejected false
+  //     setState(() {
+  //       pendingDishes = dishes.where((dish) => 
+  //         dish.status == 'Pending' && !dish.isApproved && !dish.isRejected
+  //       ).toList();
+  //       isLoading = false;
+  //     });
+  //   } else {
+  //     throw Exception('Failed to load dishes');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -41,41 +78,10 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
         ),
         backgroundColor: Colors.white70,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search dish',
-                    border: InputBorder.none,
-                    icon: Icon(Icons.search),
-                  ),
-                ),
-              ),
-            ),
-            
-            // Table
-            Expanded(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
               child: ListView.builder(
                 itemCount: pendingDishes.length,
                 itemBuilder: (context, index) {
@@ -104,7 +110,7 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                           // Right side: Image
                           SizedBox(width: 12),
                           Image.network(
-                            dish.imageUrl,
+                            dish.image,
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
@@ -135,29 +141,6 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                 },
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
-}
-
-class Dish {
-  final String name;
-  final String flavor;
-  final String category;
-  final String vendorName;
-  final double price;
-  final String mapLink;
-  final String imageUrl;
-
-  Dish({
-    required this.name,
-    required this.flavor,
-    required this.category,
-    required this.vendorName,
-    required this.price,
-    required this.mapLink,
-    required this.imageUrl,
-  });
 }

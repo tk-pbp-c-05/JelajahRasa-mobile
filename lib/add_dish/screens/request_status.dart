@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart'; // Import class EditDish
 
 class RequestStatusScreen extends StatefulWidget {
   @override
@@ -8,30 +9,54 @@ class RequestStatusScreen extends StatefulWidget {
 
 class _RequestStatusScreenState extends State<RequestStatusScreen> {
   TextEditingController _searchController = TextEditingController();
-  
+
   // Sample data for requested dishes
-  List<Request> requests = [
-    Request(
+  List<NewDishEntry> requests = [
+    NewDishEntry(
+      uuid: '1',
       name: 'Pizza',
       flavor: 'Salty',
       category: 'Food',
       vendorName: 'Pizza Hut',
-      price: 12.99,
-      mapLink: 'https://www.google.com/maps',
-      imageUrl: 'https://via.placeholder.com/100', // Image URL for the dish
-      status: 'Accepted', // "Accepted" status
+      price: 1299,
+      mapLink: 'https://www.google.com/',
+      address: '123 Pizza Street',
+      image: 'https://via.placeholder.com/100',
+      isApproved: true,
+      isRejected: false,
+      status: 'Accepted',
+      userUsername: 'admin',
     ),
-    Request(
+    NewDishEntry(
+      uuid: '2',
       name: 'Burger',
       flavor: 'Savory',
       category: 'Food',
       vendorName: 'McDonalds',
-      price: 8.50,
+      price: 850,
       mapLink: 'https://www.google.com/maps',
-      imageUrl: 'https://via.placeholder.com/100', // Image URL for the dish
-      status: 'Accepted', // "Accepted" status
+      address: '456 Burger Avenue',
+      image: 'https://via.placeholder.com/100',
+      isApproved: false,
+      isRejected: false,
+      status: 'Pending',
+      userUsername: 'john_doe',
     ),
-    // Add more Request objects here
+    NewDishEntry(
+      uuid: '3',
+      name: 'Pasta',
+      flavor: 'Sweet',
+      category: 'Food',
+      vendorName: 'Italiano',
+      price: 999,
+      mapLink: 'https://www.google.com/maps',
+      address: '789 Pasta Boulevard',
+      image: 'https://via.placeholder.com/100',
+      isApproved: false,
+      isRejected: true,
+      status: 'Rejected',
+      userUsername: 'jane_doe',
+    ),
   ];
 
   @override
@@ -62,7 +87,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
               ),
               child: TextField(
                 controller: _searchController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Search Request',
                   border: InputBorder.none,
                   suffixIcon: Icon(Icons.search),
@@ -74,36 +99,83 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
               child: ListView.builder(
                 itemCount: requests.length,
                 itemBuilder: (context, index) {
+                  final request = requests[index];
+
+                  // Determine the status text and color
+                  String statusText;
+                  Color statusColor;
+
+                  if (request.status == 'Accepted' && request.isApproved && !request.isRejected) {
+                    statusText = 'Accepted';
+                    statusColor = Colors.green;
+                  } else if (request.status == 'Pending' && !request.isApproved && !request.isRejected) {
+                    statusText = 'Pending';
+                    statusColor = Colors.yellow;
+                  } else if (request.status == 'Rejected' && !request.isApproved && request.isRejected) {
+                    statusText = 'Rejected';
+                    statusColor = Colors.red;
+                  } else {
+                    statusText = 'Unknown';
+                    statusColor = Colors.grey;
+                  }
+
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(12.0),
-                      leading: Image.network(requests[index].imageUrl),
-                      title: Text(requests[index].name, style: TextStyle(fontWeight: FontWeight.bold)),
+                      contentPadding: const EdgeInsets.all(12.0),
+                      leading: Image.network(request.image),
+                      title: Text(request.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Flavor: ${requests[index].flavor}'),
-                          Text('Category: ${requests[index].category}'),
-                          Text('Vendor: ${requests[index].vendorName}'),
-                          Text('Price: \$${requests[index].price.toStringAsFixed(2)}'),
-                          Text('Map Link: ${requests[index].mapLink}'),
+                          Text('Flavor: ${request.flavor}'),
+                          Text('Category: ${request.category}'),
+                          Text('Vendor: ${request.vendorName}'),
+                          Text('Price: \$${request.price.toStringAsFixed(2)}'),
+                          Text('Map Link: ${request.mapLink}'),
                         ],
                       ),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Display "Accepted" status as a Text widget
                           Text(
-                            requests[index].status,
+                            statusText,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                              color: statusColor,
                             ),
                           ),
+                          if (request.status == 'Rejected' && !request.isApproved && request.isRejected)
+                            TextButton(
+                              onPressed: () {
+                                // Navigate to EditDish class
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditDish(dish: request)),
+                                ).then((updatedDish) {
+                                  if (updatedDish != null) {
+                                    setState(() {
+                                      // Update the specific dish in the list
+                                      int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
+                                      if (index != -1) {
+                                        requests[index] = updatedDish;
+                                      }
+                                    });
+                                  }
+                                });
+                              },
+                              child: const Text(
+                                'Edit',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -116,26 +188,4 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
       ),
     );
   }
-}
-
-class Request {
-  final String name;
-  final String flavor;
-  final String category;
-  final String vendorName;
-  final double price;
-  final String mapLink;
-  final String imageUrl;
-  final String status;
-
-  Request({
-    required this.name,
-    required this.flavor,
-    required this.category,
-    required this.vendorName,
-    required this.price,
-    required this.mapLink,
-    required this.imageUrl,
-    required this.status,
-  });
 }

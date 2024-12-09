@@ -3,7 +3,7 @@ import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
-import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart';
+// import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const Text("Home Page"), // Halaman utama
     PendingDishesScreen(), // Halaman katalog
-    const EditDish(), // Halaman komunitas
+    const AddDish(), // Halaman komunitas
     RequestStatusScreen(), // Halaman favorit
     const AddDish(), // Halaman Add Dish
   ];

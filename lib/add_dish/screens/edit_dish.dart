@@ -1,10 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/add_dish/screens/menu.dart';
+import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:jelajah_rasa_mobile/add_dish/screens/menu.dart';
+
+import 'package:flutter/material.dart';
+import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 
 class EditDish extends StatefulWidget {
-  const EditDish({super.key});
+  final NewDishEntry dish;
+
+  const EditDish({super.key, required this.dish});
 
   @override
   State<EditDish> createState() => _EditDishState();
@@ -13,23 +18,68 @@ class EditDish extends StatefulWidget {
 class _EditDishState extends State<EditDish> {
   final _formKey = GlobalKey<FormState>();
 
-  // Form field variables
-  String dishName = '';
-  String flavor = 'Salty';
-  String category = 'Food';
-  String vendorName = '';
-  double price = 0.0;
-  String mapLink = '';
-  String address = '';
-  String imageUrl = '';
+  late TextEditingController dishNameController;
+  late TextEditingController vendorNameController;
+  late TextEditingController priceController;
+  late TextEditingController mapLinkController;
+  late TextEditingController addressController;
+  late TextEditingController imageUrlController;
 
-  // Default values for Map Link and Image URL
-  final String defaultMapLink = 'https://www.google.com/';
-  final String defaultImageUrl = 'https://i.imgur.com/8j7wC8j.jpeg';
+  late String flavor;
+  late String category;
 
-  // Dropdown options
   final List<String> flavors = ['Salty', 'Sweet'];
   final List<String> categories = ['Food', 'Beverage'];
+
+  @override
+  void initState() {
+    super.initState();
+
+    dishNameController = TextEditingController(text: widget.dish.name);
+    vendorNameController = TextEditingController(text: widget.dish.vendorName);
+    priceController = TextEditingController(text: widget.dish.price.toString());
+    mapLinkController = TextEditingController(text: widget.dish.mapLink);
+    addressController = TextEditingController(text: widget.dish.address);
+    imageUrlController = TextEditingController(text: widget.dish.image);
+
+    flavor = widget.dish.flavor;
+    category = widget.dish.category;
+  }
+
+  @override
+  void dispose() {
+    dishNameController.dispose();
+    vendorNameController.dispose();
+    priceController.dispose();
+    mapLinkController.dispose();
+    addressController.dispose();
+    imageUrlController.dispose();
+    super.dispose();
+  }
+
+  void _saveDish() {
+    if (_formKey.currentState?.validate() ?? false) {
+      // Update dish data
+      NewDishEntry updatedDish = NewDishEntry(
+        uuid: widget.dish.uuid,
+        name: dishNameController.text,
+        flavor: flavor,
+        category: category,
+        vendorName: vendorNameController.text,
+        price: int.tryParse(priceController.text) ?? widget.dish.price,
+        mapLink: mapLinkController.text,
+        address: addressController.text,
+        image: imageUrlController.text,
+        isApproved: false,
+        isRejected: false,
+        status: 'Pending',
+        userUsername: widget.dish.userUsername,
+      );
+
+      // Return updated dish to the previous screen
+      Navigator.pop(context, updatedDish);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +88,15 @@ class _EditDishState extends State<EditDish> {
         leading: IconButton(
           icon: const Icon(FontAwesomeIcons.chevronLeft),
           onPressed: () {
-            // Navigate back to the HomeScreen
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+            Navigator.pop(context); // Navigate back to the previous screen
           },
         ),
-        title: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Hello User',
-                style: TextStyle(
-                  color: Color(0xFFF4B5A4),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Add a new dish to your menu',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF757575), // Gray color for the subtitle
-                ),
-              ),
-            ],
+        title: const Text(
+          'Edit Dish',
+          style: TextStyle(
+            color: Color(0xFFF4B5A4),
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Colors.white70,
@@ -72,228 +107,67 @@ class _EditDishState extends State<EditDish> {
           key: _formKey,
           child: ListView(
             children: [
-              // Dish Name
-              const Text("Dish Name", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the dish name',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    dishName = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Dish name is required';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField("Dish Name", dishNameController),
               const SizedBox(height: 16),
 
-              // Flavor
-              const Text("Flavor", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: flavor,
-                decoration: InputDecoration(
-                  hintText: 'Select flavor',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    flavor = value!;
-                  });
-                },
-                items: flavors.map((flavor) {
-                  return DropdownMenuItem<String>(
-                    value: flavor,
-                    child: Text(flavor),
-                  );
-                }).toList(),
-              ),
+              _buildDropdown("Flavor", flavor, flavors, (value) {
+                setState(() {
+                  flavor = value!;
+                });
+              }),
               const SizedBox(height: 16),
 
-              const Text("Category", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: category,
-                decoration: InputDecoration(
-                  hintText: 'Select category',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    category = value!;
-                  });
-                },
-                items: categories.map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-              ),
+              _buildDropdown("Category", category, categories, (value) {
+                setState(() {
+                  category = value!;
+                });
+              }),
               const SizedBox(height: 16),
 
-              // Vendor Name
-              const Text("Vendor's Name", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the vendor name',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    vendorName = value;
-                  });
-                },
-              ),
+              _buildTextField("Vendor's Name", vendorNameController),
               const SizedBox(height: 16),
 
-              // Vendor Name
-              const Text("Price", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter Price',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    price = double.tryParse(value) ?? 0.0;
-                  });
-                },
-              ),
+              _buildTextField("Price", priceController, isNumber: true),
               const SizedBox(height: 16),
 
-              // Map Link
-              const Text("Map Link", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the Map Link',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    mapLink = value;
-                  });
-                },
-              ),
+              _buildTextField("Map Link", mapLinkController),
               const SizedBox(height: 16),
 
-              // Address
-              const Text("Address", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter address',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address = value;
-                  });
-                },
-              ),
+              _buildTextField("Address", addressController),
               const SizedBox(height: 16),
 
-              // Image URL
-              const Text("Image URL", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the URL for Image',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    imageUrl = value;
-                  });
-                },
-              ),
+              _buildTextField("Image URL", imageUrlController),
               const SizedBox(height: 16),
 
-              // Submit Button
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Handle submit logic here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Submitting Form')),
-                    );
-                  }
-                },
-                child: const Text('Save', style: TextStyle(color: Colors.white)),
+                onPressed: _saveDish,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
-                  backgroundColor: Color(0xFFF18F73),
+                  backgroundColor: const Color(0xFFF18F73),
                 ),
+                child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {bool isNumber = false}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(labelText: label),
+    );
+  }
+
+  Widget _buildDropdown(String label, String value, List<String> options, void Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(labelText: label),
+      items: options.map((option) => DropdownMenuItem(value: option, child: Text(option))).toList(),
+      onChanged: onChanged,
     );
   }
 }

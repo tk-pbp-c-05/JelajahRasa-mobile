@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/add_dish/screens/menu.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 
 class AddDish extends StatefulWidget {
   const AddDish({super.key});
@@ -31,40 +29,47 @@ class _AddDishState extends State<AddDish> {
   final List<String> flavors = ['Salty', 'Sweet'];
   final List<String> categories = ['Food', 'Beverage'];
 
+  void _saveDish() {
+    if (_formKey.currentState?.validate() ?? false) {
+      // Create a new NewDishEntry object with the form data
+      NewDishEntry newDish = NewDishEntry(
+        uuid: UniqueKey().toString(), // Generate a unique ID
+        name: dishName,
+        flavor: flavor,
+        category: category,
+        vendorName: vendorName,
+        price: price.toInt(), // Assuming price is an integer
+        mapLink: mapLink.isNotEmpty ? mapLink : defaultMapLink,
+        address: address,
+        image: imageUrl.isNotEmpty ? imageUrl : defaultImageUrl,
+        isApproved: false,
+        isRejected: false,
+        status: 'Pending',
+        userUsername: 'current_user', // Replace with actual logged-in user's username
+      );
+
+      // Debugging output to console (you can replace this with actual submission logic)
+      print('New Dish Created: ${newDish.toJson()}');
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dish added successfully!')),
+      );
+
+      // Clear the form
+      _formKey.currentState?.reset();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(FontAwesomeIcons.chevronLeft),
-          onPressed: () {
-            // Navigate back to the HomeScreen
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-          },
+        title: const Text(
+          'Add Dish',
+          style: TextStyle(color: Colors.white),
         ),
-        title: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Hello User',
-                style: TextStyle(
-                  color: Color(0xFFF4B5A4),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Add a new dish to your menu',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF757575), // Gray color for the subtitle
-                ),
-              ),
-            ],
-          ),
-        ),
-        backgroundColor: Colors.white70,
+        backgroundColor: Color(0xFFF18F73),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,222 +78,75 @@ class _AddDishState extends State<AddDish> {
           child: ListView(
             children: [
               // Dish Name
-              const Text("Dish Name", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the dish name',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    dishName = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Dish name is required';
-                  }
-                  return null;
-                },
+                decoration: const InputDecoration(labelText: 'Dish Name'),
+                onChanged: (value) => dishName = value,
+                validator: (value) => value == null || value.isEmpty ? 'Dish name is required' : null,
               ),
               const SizedBox(height: 16),
 
               // Flavor
-              const Text("Flavor", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: flavor,
-                decoration: InputDecoration(
-                  hintText: 'Select flavor',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    flavor = value!;
-                  });
-                },
-                items: flavors.map((flavor) {
-                  return DropdownMenuItem<String>(
-                    value: flavor,
-                    child: Text(flavor),
-                  );
-                }).toList(),
+                decoration: const InputDecoration(labelText: 'Flavor'),
+                items: flavors.map((flavor) => DropdownMenuItem(value: flavor, child: Text(flavor))).toList(),
+                onChanged: (value) => setState(() => flavor = value!),
               ),
               const SizedBox(height: 16),
 
-              const Text("Category", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              // Category
               DropdownButtonFormField<String>(
                 value: category,
-                decoration: InputDecoration(
-                  hintText: 'Select category',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    category = value!;
-                  });
-                },
-                items: categories.map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
+                decoration: const InputDecoration(labelText: 'Category'),
+                items: categories.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
+                onChanged: (value) => setState(() => category = value!),
               ),
               const SizedBox(height: 16),
 
               // Vendor Name
-              const Text("Vendor's Name", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the vendor name',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    vendorName = value;
-                  });
-                },
+                decoration: const InputDecoration(labelText: 'Vendor Name'),
+                onChanged: (value) => vendorName = value,
               ),
               const SizedBox(height: 16),
 
-              // Vendor Name
-              const Text("Price", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              // Price
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter Price',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    price = double.tryParse(value) ?? 0.0;
-                  });
-                },
+                decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => price = double.tryParse(value) ?? 0.0,
               ),
               const SizedBox(height: 16),
 
               // Map Link
-              const Text("Map Link", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the Map Link',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    mapLink = value;
-                  });
-                },
+                decoration: const InputDecoration(labelText: 'Map Link'),
+                onChanged: (value) => mapLink = value,
               ),
               const SizedBox(height: 16),
 
               // Address
-              const Text("Address", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter address',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    address = value;
-                  });
-                },
+                decoration: const InputDecoration(labelText: 'Address'),
+                onChanged: (value) => address = value,
               ),
               const SizedBox(height: 16),
 
               // Image URL
-              const Text("Image URL", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter the URL for Image',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(width: 2, color: Color(0xFFF18F73)),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    imageUrl = value;
-                  });
-                },
+                decoration: const InputDecoration(labelText: 'Image URL'),
+                onChanged: (value) => imageUrl = value,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Submit Button
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Handle submit logic here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Submitting Form')),
-                    );
-                  }
-                },
-                child: const Text('Save', style: TextStyle(color: Colors.white)),
+                onPressed: _saveDish,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
                   backgroundColor: Color(0xFFF18F73),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+                child: const Text('Save', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
