@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:convert';
 
 class PendingDishesScreen extends StatefulWidget {
   @override
@@ -11,7 +12,6 @@ class PendingDishesScreen extends StatefulWidget {
 
 class _PendingDishesScreenState extends State<PendingDishesScreen> {
   List<NewDishEntry> pendingDishes = [];
-  bool isLoading = false;
 
   @override
   void initState() {
@@ -19,53 +19,50 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
     fetchPendingDishes();
   }
 
-  Future<void> fetchPendingDishes() async {
-    setState(() => isLoading = true);
+Future<void> fetchPendingDishes() async {
+  final request = context.read<CookieRequest>();
+  const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
 
-    const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
+  try {
+    final response = await request.get(apiUrl);
 
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer your-access-token',
-          'Content-Type': 'application/json',
-        },
-      );
+    if (response is List) {
+      List<NewDishEntry> dishes = response.map((item) {
+        try {
+          return NewDishEntry.fromJson(item);
+        } catch (e) {
+          print('Error parsing dish: $e');
+          return null; // Jika parsing gagal, kembalikan null
+        }
+      }).whereType<NewDishEntry>().toList(); // Filter out null values
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        List<NewDishEntry> dishes = data.map((item) => NewDishEntry.fromJson(item)).toList();
-
-        setState(() {
-          pendingDishes = dishes;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load dishes');
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      setState(() {
+        pendingDishes = dishes;
+      });
+    } else {
+      throw Exception('Failed to load dishes');
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
+
 
   Future<void> approveDish(String uuid) async {
+    final request = context.read<CookieRequest>();
     final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer your-access-token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'action': 'approve'}),
+      final response = await request.post(
+        apiUrl,
+        jsonEncode({'action': 'approve'}),
       );
 
-      if (response.statusCode == 200) {
+      bool? isSuccess = response['success']; // Nullable type
+
+      if (isSuccess == true) {
         setState(() {
           pendingDishes.removeWhere((dish) => dish.uuid == uuid);
         });
@@ -83,19 +80,18 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
   }
 
   Future<void> rejectDish(String uuid) async {
+    final request = context.read<CookieRequest>();
     final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer your-access-token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'action': 'reject'}),
+      final response = await request.post(
+        apiUrl,
+        jsonEncode({'action': 'reject'}),
       );
 
-      if (response.statusCode == 200) {
+      bool? isSuccess = response['success']; // Nullable type
+
+      if (isSuccess == true) {
         setState(() {
           pendingDishes.removeWhere((dish) => dish.uuid == uuid);
         });
@@ -116,14 +112,14 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Pending Dishes',
           style: TextStyle(fontSize: 24, color: Color(0xFFF4B5A4)),
         ),
         backgroundColor: Colors.white70,
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
+      body: pendingDishes.isEmpty
+          ? const Center(child: Text('No pending dishes found.'))
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView.builder(
@@ -131,7 +127,7 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                 itemBuilder: (context, index) {
                   final dish = pendingDishes[index];
                   return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
@@ -140,7 +136,7 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Name: ${dish.name}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text('Name: ${dish.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
                                 Text('Flavor: ${dish.flavor}'),
                                 Text('Category: ${dish.category}'),
                                 Text('Vendor: ${dish.vendorName}'),
@@ -149,22 +145,22 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Image.network(
                             dish.image,
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Column(
                             children: [
                               IconButton(
-                                icon: FaIcon(FontAwesomeIcons.check, color: Colors.green),
+                                icon: const FaIcon(FontAwesomeIcons.check, color: Colors.green),
                                 onPressed: () => approveDish(dish.uuid),
                               ),
                               IconButton(
-                                icon: Icon(Icons.cancel, color: Colors.red),
+                                icon: const Icon(Icons.cancel, color: Colors.red),
                                 onPressed: () => rejectDish(dish.uuid),
                               ),
                             ],

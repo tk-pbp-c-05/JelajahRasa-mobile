@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart'; // Import class EditDish
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class RequestStatusScreen extends StatefulWidget {
   @override
@@ -23,20 +23,14 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
 
 
   Future<void> fetchUserRequests() async {
+    final request = context.read<CookieRequest>();
     const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-user-dishes/';
 
     try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer your-access-token', // Ganti dengan token yang valid
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await request.get(apiUrl);
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        List<NewDishEntry> userRequests = data.map((item) => NewDishEntry.fromJson(item)).toList();
+      if (response is List) {
+        List<NewDishEntry> userRequests = response.map((item) => NewDishEntry.fromJson(item)).toList();
 
         setState(() {
           requests = userRequests;
@@ -96,7 +90,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                   String statusText;
                   Color statusColor;
 
-                  if (request.status == 'Accepted' && request.isApproved && !request.isRejected) {
+                  if (request.status == 'Approved' && request.isApproved && !request.isRejected) {
                     statusText = 'Accepted';
                     statusColor = Colors.green;
                   } else if (request.status == 'Pending' && !request.isApproved && !request.isRejected) {

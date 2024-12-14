@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EditDish extends StatefulWidget {
   final NewDishEntry dish;
@@ -56,16 +57,14 @@ class _EditDishState extends State<EditDish> {
   }
 
   Future<void> _updateDish(NewDishEntry updatedDish) async {
+    final request = context.read<CookieRequest>();
     final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
 
     try {
-      final response = await http.put(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer your-access-token', // Ganti dengan token autentikasi yang valid
-        },
-        body: jsonEncode({
+      final response = await request.post(
+        apiUrl,
+        jsonEncode({
+          '_method': 'PUT',  // Menambahkan metode PUT secara eksplisit
           'name': updatedDish.name,
           'flavor': updatedDish.flavor,
           'category': updatedDish.category,
@@ -77,9 +76,12 @@ class _EditDishState extends State<EditDish> {
         }),
       );
 
-      if (response.statusCode == 200) {
+      // Asumsikan respons dari server mengandung 'success' untuk menentukan keberhasilan
+      bool? isSuccess = response['success'] as bool?;
+
+      if (isSuccess == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Dish updated successfully!')),
+          const SnackBar(content: Text('Dish updated successfully!')),
         );
         Navigator.pop(context, updatedDish);
       } else {
@@ -91,6 +93,7 @@ class _EditDishState extends State<EditDish> {
       );
     }
   }
+
 
   void _saveDish() {
     if (_formKey.currentState?.validate() ?? false) {

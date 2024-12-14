@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class AddDish extends StatefulWidget {
   const AddDish({super.key});
@@ -33,26 +34,22 @@ class _AddDishState extends State<AddDish> {
 
 
 Future<void> _submitDishToServer(NewDishEntry newDish) async {
+  final request = context.read<CookieRequest>();
   const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-add-dish/'; // Ganti dengan URL Django Anda
 
   try {
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer your-token', // Ganti dengan token otentikasi jika diperlukan
-      },
-      body: jsonEncode(newDish.toJson()),
+    final response = await request.post(
+      apiUrl,
+      jsonEncode(newDish.toJson()),
     );
 
-    if (response.statusCode == 201) {
+    if (response['status'] == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Dish added successfully!')),
       );
     } else {
-      final responseData = jsonDecode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${responseData['message']}')),
+        SnackBar(content: Text('Error: ${response['message']}')),
       );
     }
   } catch (e) {
