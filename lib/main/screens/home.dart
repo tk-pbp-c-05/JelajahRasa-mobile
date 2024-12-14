@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/food_card.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,6 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         leading: const Icon(Icons.search, color: Colors.brown),
-        actions: const [
-          CircleAvatar(
-            backgroundImage: AssetImage('assets/user_profile.jpg'),
-          ),
-        ],
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -70,9 +65,9 @@ class HomeScreen extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: const [
-              FoodCard(image: 'assets/food1.jpg', title: 'Bakso Malang', price: 'Rp 14.290', rating: 5.0, reviews: 5),
-              FoodCard(image: 'assets/food2.jpg', title: 'Rawon Malang', price: 'Rp 20.000', rating: 4.8, reviews: 10),
-              FoodCard(image: 'assets/food3.jpg', title: 'Bakso Malang', price: 'Rp 17.500', rating: 4.8, reviews: 5),
+              FoodCard(title: 'Bakso Malang', price: 'Rp 14.290', rating: 5.0, reviews: 5),
+              FoodCard(title: 'Rawon Malang', price: 'Rp 20.000', rating: 4.8, reviews: 10),
+              FoodCard( title: 'Bakso Malang', price: 'Rp 17.500', rating: 4.8, reviews: 5),
             ],
           ),
         ),
