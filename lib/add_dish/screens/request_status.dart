@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart'; // Import class EditDish
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RequestStatusScreen extends StatefulWidget {
   @override
@@ -11,53 +13,43 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
   TextEditingController _searchController = TextEditingController();
 
   // Sample data for requested dishes
-  List<NewDishEntry> requests = [
-    NewDishEntry(
-      uuid: '1',
-      name: 'Pizza',
-      flavor: 'Salty',
-      category: 'Food',
-      vendorName: 'Pizza Hut',
-      price: 1299,
-      mapLink: 'https://www.google.com/',
-      address: '123 Pizza Street',
-      image: 'https://via.placeholder.com/100',
-      isApproved: true,
-      isRejected: false,
-      status: 'Accepted',
-      userUsername: 'admin',
-    ),
-    NewDishEntry(
-      uuid: '2',
-      name: 'Burger',
-      flavor: 'Savory',
-      category: 'Food',
-      vendorName: 'McDonalds',
-      price: 850,
-      mapLink: 'https://www.google.com/maps',
-      address: '456 Burger Avenue',
-      image: 'https://via.placeholder.com/100',
-      isApproved: false,
-      isRejected: false,
-      status: 'Pending',
-      userUsername: 'john_doe',
-    ),
-    NewDishEntry(
-      uuid: '3',
-      name: 'Pasta',
-      flavor: 'Sweet',
-      category: 'Food',
-      vendorName: 'Italiano',
-      price: 999,
-      mapLink: 'https://www.google.com/maps',
-      address: '789 Pasta Boulevard',
-      image: 'https://via.placeholder.com/100',
-      isApproved: false,
-      isRejected: true,
-      status: 'Rejected',
-      userUsername: 'jane_doe',
-    ),
-  ];
+  List<NewDishEntry> requests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserRequests();
+  }
+
+
+  Future<void> fetchUserRequests() async {
+    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-user-dishes/';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer your-access-token', // Ganti dengan token yang valid
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        List<NewDishEntry> userRequests = data.map((item) => NewDishEntry.fromJson(item)).toList();
+
+        setState(() {
+          requests = userRequests;
+        });
+      } else {
+        throw Exception('Failed to load user requests');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +93,6 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                 itemBuilder: (context, index) {
                   final request = requests[index];
 
-                  // Determine the status text and color
                   String statusText;
                   Color statusColor;
 
@@ -151,14 +142,12 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                           if (request.status == 'Rejected' && !request.isApproved && request.isRejected)
                             TextButton(
                               onPressed: () {
-                                // Navigate to EditDish class
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => EditDish(dish: request)),
                                 ).then((updatedDish) {
                                   if (updatedDish != null) {
                                     setState(() {
-                                      // Update the specific dish in the list
                                       int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
                                       if (index != -1) {
                                         requests[index] = updatedDish;
@@ -188,4 +177,5 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
       ),
     );
   }
+
 }

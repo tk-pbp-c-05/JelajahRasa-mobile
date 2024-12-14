@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AddDish extends StatefulWidget {
   const AddDish({super.key});
@@ -16,7 +18,7 @@ class _AddDishState extends State<AddDish> {
   String flavor = 'Salty';
   String category = 'Food';
   String vendorName = '';
-  double price = 0.0;
+  int price = 0;
   String mapLink = '';
   String address = '';
   String imageUrl = '';
@@ -29,37 +31,63 @@ class _AddDishState extends State<AddDish> {
   final List<String> flavors = ['Salty', 'Sweet'];
   final List<String> categories = ['Food', 'Beverage'];
 
-  void _saveDish() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Create a new NewDishEntry object with the form data
-      NewDishEntry newDish = NewDishEntry(
-        uuid: UniqueKey().toString(), // Generate a unique ID
-        name: dishName,
-        flavor: flavor,
-        category: category,
-        vendorName: vendorName,
-        price: price.toInt(), // Assuming price is an integer
-        mapLink: mapLink.isNotEmpty ? mapLink : defaultMapLink,
-        address: address,
-        image: imageUrl.isNotEmpty ? imageUrl : defaultImageUrl,
-        isApproved: false,
-        isRejected: false,
-        status: 'Pending',
-        userUsername: 'current_user', // Replace with actual logged-in user's username
-      );
 
-      // Debugging output to console (you can replace this with actual submission logic)
-      print('New Dish Created: ${newDish.toJson()}');
+Future<void> _submitDishToServer(NewDishEntry newDish) async {
+  const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-add-dish/'; // Ganti dengan URL Django Anda
 
-      // Show a success message
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-token', // Ganti dengan token otentikasi jika diperlukan
+      },
+      body: jsonEncode(newDish.toJson()),
+    );
+
+    if (response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Dish added successfully!')),
       );
-
-      // Clear the form
-      _formKey.currentState?.reset();
+    } else {
+      final responseData = jsonDecode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${responseData['message']}')),
+      );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
+
+void _saveDish() {
+  if (_formKey.currentState?.validate() ?? false) {
+    NewDishEntry newDish = NewDishEntry(
+      uuid: UniqueKey().toString(),
+      name: dishName,
+      flavor: flavor,
+      category: category,
+      vendorName: vendorName,
+      price: price,
+      mapLink: mapLink.isNotEmpty ? mapLink : defaultMapLink,
+      address: address,
+      image: imageUrl.isNotEmpty ? imageUrl : defaultImageUrl,
+      isApproved: false,
+      isRejected: false,
+      status: 'Pending',
+      userUsername: 'current_user', // Ganti dengan username pengguna yang sebenarnya
+    );
+
+    // Kirim data ke server Django
+    _submitDishToServer(newDish);
+
+    // Reset form setelah berhasil
+    _formKey.currentState?.reset();
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +142,7 @@ class _AddDishState extends State<AddDish> {
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => price = double.tryParse(value) ?? 0.0,
+                onChanged: (value) => price = int.tryParse(value) ?? 0,
               ),
               const SizedBox(height: 16),
 

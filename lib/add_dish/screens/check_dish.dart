@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PendingDishesScreen extends StatefulWidget {
   @override
@@ -9,64 +10,107 @@ class PendingDishesScreen extends StatefulWidget {
 }
 
 class _PendingDishesScreenState extends State<PendingDishesScreen> {
-  List<NewDishEntry> pendingDishes = [
-    NewDishEntry(
-      uuid: '1',
-      name: 'Pizza',
-      flavor: 'Salty',
-      category: 'Food',
-      vendorName: 'Pizza Hut',
-      price: 12,
-      mapLink: 'https://www.google.com/maps',
-      address: '123 Pizza Street',
-      image: 'https://via.placeholder.com/100',
-      isApproved: false,
-      isRejected: false,
-      status: 'Pending',
-      userUsername: 'admin',
-    ),
-    NewDishEntry(
-      uuid: '2',
-      name: 'Burger',
-      flavor: 'Savory',
-      category: 'Food',
-      vendorName: 'McDonalds',
-      price: 8,
-      mapLink: 'https://www.google.com/maps',
-      address: '456 Burger Avenue',
-      image: 'https://via.placeholder.com/100',
-      isApproved: false,
-      isRejected: false,
-      status: 'Pending',
-      userUsername: 'john_doe',
-    ),
-  ];
+  List<NewDishEntry> pendingDishes = [];
   bool isLoading = false;
 
   @override
-  // void initState() {
-  //   super.initState();
-  //   fetchPendingDishes();
-  // }
+  void initState() {
+    super.initState();
+    fetchPendingDishes();
+  }
 
-  // Future<void> fetchPendingDishes() async {
-  //   final response = await http.get(Uri.parse('YOUR_API_ENDPOINT_HERE'));
+  Future<void> fetchPendingDishes() async {
+    setState(() => isLoading = true);
 
-  //   if (response.statusCode == 200) {
-  //     List<dynamic> data = json.decode(response.body);
-  //     List<NewDishEntry> dishes = data.map((item) => NewDishEntry.fromJson(item)).toList();
+    const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
 
-  //     // Filter hanya yang status Pending, isApproved false, dan isRejected false
-  //     setState(() {
-  //       pendingDishes = dishes.where((dish) => 
-  //         dish.status == 'Pending' && !dish.isApproved && !dish.isRejected
-  //       ).toList();
-  //       isLoading = false;
-  //     });
-  //   } else {
-  //     throw Exception('Failed to load dishes');
-  //   }
-  // }
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer your-access-token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        List<NewDishEntry> dishes = data.map((item) => NewDishEntry.fromJson(item)).toList();
+
+        setState(() {
+          pendingDishes = dishes;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load dishes');
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> approveDish(String uuid) async {
+    final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer your-access-token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'action': 'approve'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          pendingDishes.removeWhere((dish) => dish.uuid == uuid);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Dish approved successfully!')),
+        );
+      } else {
+        throw Exception('Failed to approve dish');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> rejectDish(String uuid) async {
+    final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer your-access-token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'action': 'reject'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          pendingDishes.removeWhere((dish) => dish.uuid == uuid);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Dish rejected successfully!')),
+        );
+      } else {
+        throw Exception('Failed to reject dish');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +136,6 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         children: [
-                          // Left side: Data in columns
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,8 +149,6 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                               ],
                             ),
                           ),
-                          
-                          // Right side: Image
                           SizedBox(width: 12),
                           Image.network(
                             dish.image,
@@ -115,22 +156,16 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                             height: 80,
                             fit: BoxFit.cover,
                           ),
-                          
-                          // Right side: Checkbox and Cross buttons
                           SizedBox(width: 12),
                           Column(
                             children: [
-                              Checkbox(
-                                value: false,
-                                onChanged: (bool? value) {
-                                  // Handle checkbox change
-                                },
+                              IconButton(
+                                icon: FaIcon(FontAwesomeIcons.check, color: Colors.green),
+                                onPressed: () => approveDish(dish.uuid),
                               ),
                               IconButton(
                                 icon: Icon(Icons.cancel, color: Colors.red),
-                                onPressed: () {
-                                  // Handle cancel action
-                                },
+                                onPressed: () => rejectDish(dish.uuid),
                               ),
                             ],
                           ),

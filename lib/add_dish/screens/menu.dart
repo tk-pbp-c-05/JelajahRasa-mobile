@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
-// import 'package:jelajah_rasa_mobile/add_dish/screens/edit_dish.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,10 +34,48 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         centerTitle: true,
         leading: const Icon(Icons.search, color: Colors.brown),
-        actions: const [
-          CircleAvatar(
-            // backgroundImage: AssetImage('assets/user_profile.jpg'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(FontAwesomeIcons.userCircle, color: Colors.brown, size: 28),
+            onSelected: (value) {
+              // Handle menu item selection
+              switch (value) {
+                case 'Profile':
+                  // Navigate to Profile Screen
+                  break;
+                case 'Request Status':
+                  RequestStatusScreen();
+                  break;
+                case 'Logout':
+                  // Handle logout logic
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'Profile',
+                child: ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text('Profile'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'Settings',
+                child: ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Request Status'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'Logout',
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Logout'),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(width: 12), // Spacer for better spacing
         ],
         backgroundColor: Colors.white,
         elevation: 0,
@@ -87,9 +124,9 @@ class _HomeScreenState extends State<HomeScreen> {
             label: "Add Dish",
           ),
         ],
-        selectedItemColor:  Color(0xFFE1A85F), // Warna ikon yang dipilih
+        selectedItemColor: Color(0xFFE1A85F), // Warna ikon yang dipilih
         unselectedItemColor: Color(0xFFE1A85F), // Warna ikon yang tidak dipilih
-        backgroundColor:  Color(0xFFAB4A2F), // Warna latar belakang bottom nav
+        backgroundColor: Color(0xFFAB4A2F), // Warna latar belakang bottom nav
       ),
     );
   }

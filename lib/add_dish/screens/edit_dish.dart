@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:jelajah_rasa_mobile/add_dish/screens/menu.dart';
-
-import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
 
 class EditDish extends StatefulWidget {
   final NewDishEntry dish;
@@ -57,9 +55,45 @@ class _EditDishState extends State<EditDish> {
     super.dispose();
   }
 
+  Future<void> _updateDish(NewDishEntry updatedDish) async {
+    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
+
+    try {
+      final response = await http.put(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer your-access-token', // Ganti dengan token autentikasi yang valid
+        },
+        body: jsonEncode({
+          'name': updatedDish.name,
+          'flavor': updatedDish.flavor,
+          'category': updatedDish.category,
+          'vendor_name': updatedDish.vendorName,
+          'price': updatedDish.price,
+          'map_link': updatedDish.mapLink,
+          'address': updatedDish.address,
+          'image': updatedDish.image,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Dish updated successfully!')),
+        );
+        Navigator.pop(context, updatedDish);
+      } else {
+        throw Exception('Failed to update dish');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   void _saveDish() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Update dish data
       NewDishEntry updatedDish = NewDishEntry(
         uuid: widget.dish.uuid,
         name: dishNameController.text,
@@ -76,8 +110,7 @@ class _EditDishState extends State<EditDish> {
         userUsername: widget.dish.userUsername,
       );
 
-      // Return updated dish to the previous screen
-      Navigator.pop(context, updatedDish);
+      _updateDish(updatedDish);
     }
   }
 
@@ -88,16 +121,12 @@ class _EditDishState extends State<EditDish> {
         leading: IconButton(
           icon: const Icon(FontAwesomeIcons.chevronLeft),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
+            Navigator.pop(context);
           },
         ),
         title: const Text(
           'Edit Dish',
-          style: TextStyle(
-            color: Color(0xFFF4B5A4),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Color(0xFFF4B5A4), fontSize: 24, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white70,
       ),
@@ -109,43 +138,27 @@ class _EditDishState extends State<EditDish> {
             children: [
               _buildTextField("Dish Name", dishNameController),
               const SizedBox(height: 16),
-
-              _buildDropdown("Flavor", flavor, flavors, (value) {
-                setState(() {
-                  flavor = value!;
-                });
-              }),
+              _buildDropdown("Flavor", flavor, flavors, (value) => setState(() => flavor = value!)),
               const SizedBox(height: 16),
-
-              _buildDropdown("Category", category, categories, (value) {
-                setState(() {
-                  category = value!;
-                });
-              }),
+              _buildDropdown("Category", category, categories, (value) => setState(() => category = value!)),
               const SizedBox(height: 16),
-
               _buildTextField("Vendor's Name", vendorNameController),
               const SizedBox(height: 16),
-
               _buildTextField("Price", priceController, isNumber: true),
               const SizedBox(height: 16),
-
               _buildTextField("Map Link", mapLinkController),
               const SizedBox(height: 16),
-
               _buildTextField("Address", addressController),
               const SizedBox(height: 16),
-
               _buildTextField("Image URL", imageUrlController),
               const SizedBox(height: 16),
-
               ElevatedButton(
                 onPressed: _saveDish,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: const Color(0xFFF18F73),
+                  backgroundColor: Color(0xFFF18F73),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
