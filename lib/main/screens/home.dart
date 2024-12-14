@@ -1,13 +1,123 @@
 import 'package:flutter/material.dart';
-//import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
+import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _currentIndex = 0; // Variabel untuk menandakan halaman aktif
+
+  // Simulasi status autentikasi dan role user
+  bool isAuthenticated = true; // Ganti ke true jika user sudah login
+  bool isStaff = false; // Ganti ke true jika user adalah staff/admin
+
+  // Daftar halaman untuk user yang sudah login
+  final List<Widget> _authenticatedPages = [
+    const HomePageContent(), // Halaman utama
+    PendingDishesScreen(), // Halaman katalog
+    const AddDish(), // Halaman komunitas
+    const ShowFavorite(), // Halaman favorit
+    const AddDish(), // Halaman Add Dish
+  ];
+
+  // Daftar halaman untuk user yang belum login
+  final List<Widget> _guestPages = [
+    const HomePageContent(), // Halaman utama
+    PendingDishesScreen(), // Halaman katalog
+  ];
+
+  void _handleMenuSelection(String value) {
+    switch (value) {
+      case 'Profile':
+        // Navigasi ke halaman profil
+        break;
+      case 'Check New Dish':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PendingDishesScreen()));
+        break;
+      case 'Request Status':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestStatusScreen()));
+        break;
+      case 'Logout':
+        setState(() {
+          isAuthenticated = false; // Set status autentikasi ke false saat logout
+          _currentIndex = 0; // Reset ke halaman Home
+        });
+        break;
+      case 'Login':
+        // Navigasi ke halaman login
+        break;
+      case 'Register':
+        // Navigasi ke halaman register
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Tentukan daftar halaman berdasarkan status autentikasi
+    final List<Widget> pages = isAuthenticated ? _authenticatedPages : _guestPages;
+
+    // Tentukan item Bottom Navigation Bar berdasarkan status autentikasi
+    final List<BottomNavigationBarItem> bottomNavItems = isAuthenticated
+        ? [
+            BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+              ),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+              ),
+              label: "Catalogue",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 2 ? Icons.people_alt : Icons.people_alt_outlined,
+              ),
+              label: "Community",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 3 ? Icons.favorite : Icons.favorite_border_outlined,
+              ),
+              label: "Favorites",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 4 ? FontAwesomeIcons.circlePlus : FontAwesomeIcons.squarePlus,
+              ),
+              label: "Add Dish",
+            ),
+          ]
+        : [
+            BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+              ),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+              ),
+              label: "Catalogue",
+            ),
+          ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -15,59 +125,114 @@ class MyHomePage extends StatelessWidget {
           style: TextStyle(fontFamily: 'CustomFont', fontSize: 24),
         ),
         centerTitle: true,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.brown),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
+        leading: const Icon(Icons.search, color: Colors.brown),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.brown),
-            onPressed: () {
-              // Add search functionality here
+          PopupMenuButton<String>(
+            icon: Icon(
+              isAuthenticated
+                  ? FontAwesomeIcons.solidCircleUser
+                  : FontAwesomeIcons.circleUser,
+              color: const Color(0xFFE1A85F),
+              size: 28,
+            ),
+            color: const Color(0xFFE1A85F),
+            offset: const Offset(0, 50),
+            onSelected: _handleMenuSelection,
+            itemBuilder: (context) {
+              if (isAuthenticated) {
+                return [
+                  const PopupMenuItem(
+                    value: 'Profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Profile', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                  if (isStaff)
+                    const PopupMenuItem(
+                      value: 'Check New Dish',
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.black),
+                          SizedBox(width: 10),
+                          Text('Check New Dish', style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    )
+                  else
+                    const PopupMenuItem(
+                      value: 'Request Status',
+                      child: Row(
+                        children: [
+                          Icon(Icons.assignment, color: Colors.black),
+                          SizedBox(width: 10),
+                          Text('Request Status', style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  const PopupMenuItem(
+                    value: 'Logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Logout', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                ];
+              } else {
+                return [
+                  const PopupMenuItem(
+                    value: 'Login',
+                    child: Row(
+                      children: [
+                        Icon(Icons.login, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Login', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'Register',
+                    child: Row(
+                      children: [
+                        Icon(Icons.app_registration, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Register', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                ];
+              }
             },
           ),
+          const SizedBox(width: 12),
         ],
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: const LeftDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Welcome Back, user",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text("What food do you have in mind?",
-                style: TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 16),
-            _buildSection("Most Liked Food", context),
-            const SizedBox(height: 16),
-            _buildSection("Recently Added Foods", context),
-          ],
-        ),
-      ),
+      drawer: const LeftDrawer(), // Keep the drawer here
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: "Catalogue"),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Community"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favorites"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add Dish"),
-        ],
-        selectedItemColor: Colors.brown,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: bottomNavItems,
+        selectedItemColor: const Color(0xFFE1A85F),
+        unselectedItemColor: const Color(0xFFE1A85F),
+        backgroundColor: const Color(0xFFAB4A2F),
       ),
     );
   }
 
-  Widget _buildSection(String title, BuildContext context) {
+    Widget _buildSection(String title, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -92,112 +257,27 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
+class HomePageContent extends StatelessWidget {
+  const HomePageContent({super.key});
 
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key});
-
-//   @override
-//   State<MyHomePage> createState() => _HomeScreenState();
-// }
-
-// class _HomeScreenState extends State<MyHomePage> {
-//   int _selectedIndex = 0;
-
-//   final List<Widget> _pages = [
-//     const HomeContent(),
-//     const Text('Catalogue Page'), // Ganti dengan widget Catalogue
-//     const Text('Community Page'), // Ganti dengan widget Community
-//     const Text('Favourites Page'), // Ganti dengan widget Favourites
-//     const Text('Add Dish Page'), // Ganti dengan widget Add Dish
-//   ];
-
-//   void _onItemTapped(int index) {
-//      if (index == 3) { // Indeks untuk Favourites
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => const ShowFavorite(), // Ganti dengan halaman yang diinginkan
-//         ),
-//       );
-//     } else {
-//       setState(() {
-//         _selectedIndex = index;
-//       });
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Jelajah Rasa'),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.search),
-//             onPressed: () {
-//               // Handle search
-//             },
-//           ),
-//         ],
-//       ),
-//       body: _pages[_selectedIndex],
-//       bottomNavigationBar: BottomNavbar(
-//         selectedIndex: _selectedIndex,
-//         onItemTapped: _onItemTapped,
-//       ),
-//     );
-//   }
-// }
-
-// class HomeContent extends StatelessWidget {
-//   const HomeContent({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text(
-//             "What food do you have in mind?",
-//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: 16),
-//           const Text(
-//             "Most Liked Food",
-//             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: 8),
-//           const SingleChildScrollView(
-//             scrollDirection: Axis.horizontal,
-//             child: Row(
-//               children: [
-//                 FoodCard(title: "Bakso Malang", price: 14290, rating: 5.0, reviews: 5),
-//                 FoodCard(title: "Bakso Malang", price: 14290, rating: 5.0, reviews: 5),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 16),
-//           const Text(
-//             "Recently Added Food",
-//             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: 8),
-//           Expanded(
-//             child: GridView.count(
-//               crossAxisCount: 2,
-//               childAspectRatio: 3 / 4,
-//               mainAxisSpacing: 16,
-//               crossAxisSpacing: 16,
-//               children: const [
-//                 FoodCard(title: "Bakso Malang", price: 14290, rating: 5.0, reviews: 5),
-//                 FoodCard(title: "Bakso Malang", price: 14290, rating: 5.0, reviews: 5),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Welcome Back, user",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "What food do you have in mind?",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+}
