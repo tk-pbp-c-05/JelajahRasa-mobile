@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
+import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,8 +14,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0; // Variabel untuk menandakan halaman aktif
 
-  // Daftar halaman yang ingin ditampilkan saat bottom nav item ditekan
-  final List<Widget> _pages = [
+  // Simulasi status autentikasi dan role user
+  bool isAuthenticated = false; // Ganti ke true jika user sudah login
+  bool isStaff = false; // Ganti ke true jika user adalah staff/admin
+
+  // Daftar halaman untuk user yang sudah login
+  final List<Widget> _authenticatedPages = [
     const Text("Home Page"), // Halaman utama
     PendingDishesScreen(), // Halaman katalog
     const AddDish(), // Halaman komunitas
@@ -24,8 +27,94 @@ class _HomeScreenState extends State<HomeScreen> {
     const AddDish(), // Halaman Add Dish
   ];
 
+  // Daftar halaman untuk user yang belum login
+  final List<Widget> _guestPages = [
+    const Text("Home Page"), // Halaman utama
+    PendingDishesScreen(), // Halaman katalog
+  ];
+
+  void _handleMenuSelection(String value) {
+    switch (value) {
+      case 'Profile':
+        // Navigasi ke halaman profil
+        break;
+      case 'Check New Dish':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PendingDishesScreen()));
+        break;
+      case 'Request Status':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestStatusScreen()));
+        break;
+      case 'Logout':
+        setState(() {
+          isAuthenticated = false; // Set status autentikasi ke false saat logout
+          _currentIndex = 0; // Reset ke halaman Home
+        });
+        break;
+      case 'Login':
+        // Navigasi ke halaman login
+        break;
+      case 'Register':
+        // Navigasi ke halaman register
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Tentukan daftar halaman berdasarkan status autentikasi
+    final List<Widget> pages = isAuthenticated ? _authenticatedPages : _guestPages;
+
+    // Tentukan item Bottom Navigation Bar berdasarkan status autentikasi
+    final List<BottomNavigationBarItem> bottomNavItems = isAuthenticated
+        ? [
+            BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+              ),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+              ),
+              label: "Catalogue",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 2 ? Icons.people_alt : Icons.people_alt_outlined,
+              ),
+              label: "Community",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 3 ? Icons.favorite : Icons.favorite_border_outlined,
+              ),
+              label: "Favorites",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 4 ? FontAwesomeIcons.circlePlus : FontAwesomeIcons.squarePlus,
+              ),
+              label: "Add Dish",
+            ),
+          ]
+        : [
+            BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+              ),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+              ),
+              label: "Catalogue",
+            ),
+          ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -36,44 +125,86 @@ class _HomeScreenState extends State<HomeScreen> {
         leading: const Icon(Icons.search, color: Colors.brown),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(FontAwesomeIcons.userCircle, color: Colors.brown, size: 28),
-            onSelected: (value) {
-              // Handle menu item selection
-              switch (value) {
-                case 'Profile':
-                  // Navigate to Profile Screen
-                  break;
-                case 'Request Status':
-                  RequestStatusScreen();
-                  break;
-                case 'Logout':
-                  // Handle logout logic
-                  break;
+            icon: Icon(
+              isAuthenticated
+                  ? FontAwesomeIcons.solidCircleUser // Ikon saat user sudah login
+                  : FontAwesomeIcons.circleUser,     // Ikon saat user belum login
+              color: const Color(0xFFE1A85F),
+              size: 28,
+            ),
+            color: const Color(0xFFE1A85F),
+            offset: const Offset(0, 50),
+            onSelected: _handleMenuSelection,
+            itemBuilder: (context) {
+              if (isAuthenticated) {
+                return [
+                  const PopupMenuItem(
+                    value: 'Profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Profile', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                  if (isStaff)
+                    const PopupMenuItem(
+                      value: 'Check New Dish',
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.black),
+                          SizedBox(width: 10),
+                          Text('Check New Dish', style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    )
+                  else
+                    const PopupMenuItem(
+                      value: 'Request Status',
+                      child: Row(
+                        children: [
+                          Icon(Icons.assignment, color: Colors.black),
+                          SizedBox(width: 10),
+                          Text('Request Status', style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  const PopupMenuItem(
+                    value: 'Logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Logout', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                ];
+              } else {
+                return [
+                  const PopupMenuItem(
+                    value: 'Login',
+                    child: Row(
+                      children: [
+                        Icon(Icons.login, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Login', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'Register',
+                    child: Row(
+                      children: [
+                        Icon(Icons.app_registration, color: Colors.black),
+                        SizedBox(width: 10),
+                        Text('Register', style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),                ];
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'Profile',
-                child: ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('Profile'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'Settings',
-                child: ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Request Status'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'Logout',
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('Logout'),
-                ),
-              ),
-            ],
           ),
           const SizedBox(width: 12), // Spacer for better spacing
         ],
@@ -82,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _pages[_currentIndex], // Menampilkan halaman berdasarkan currentIndex
+        child: pages[_currentIndex], // Menampilkan halaman berdasarkan currentIndex
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex, // Menunjukkan halaman yang sedang aktif
@@ -91,42 +222,10 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index; // Mengubah halaman aktif
           });
         },
-        items: [
-          BottomNavigationBarItem(
-            backgroundColor: Color(0xFFAB4A2F),
-            icon: Icon(
-              _currentIndex == 0 ? Icons.home : Icons.home_outlined, // Full icon jika selected
-            ),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass, // Full icon jika selected
-            ),
-            label: "Catalogue",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 2 ? Icons.people_alt : Icons.people_alt_outlined, // Full icon jika selected
-            ),
-            label: "Community",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 3 ? Icons.favorite : Icons.favorite_border_outlined, // Full icon jika selected
-            ),
-            label: "Favorites",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 4 ? FontAwesomeIcons.circlePlus : FontAwesomeIcons.squarePlus, // Full icon jika selected
-            ),
-            label: "Add Dish",
-          ),
-        ],
-        selectedItemColor: Color(0xFFE1A85F), // Warna ikon yang dipilih
-        unselectedItemColor: Color(0xFFE1A85F), // Warna ikon yang tidak dipilih
-        backgroundColor: Color(0xFFAB4A2F), // Warna latar belakang bottom nav
+        items: bottomNavItems,
+        selectedItemColor: const Color(0xFFE1A85F),
+        unselectedItemColor: const Color(0xFFE1A85F),
+        backgroundColor: const Color(0xFFAB4A2F),
       ),
     );
   }
