@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
           image: DecorationImage(
             image: AssetImage('assets/background.png'),
             fit: BoxFit.cover,
-            opacity: 1,
+            opacity: 0.2,
           ),
         ),
         child: SafeArea(
@@ -35,10 +35,10 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 Image.asset(
                   'assets/logo.png',
-                  height: 120,
+                  height: 200,
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
                   'Login to your account',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -109,8 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
 
-                    final response = await request.login(
-                        "http://127.0.0.1:8000/auth/login/", {
+                    final response = await request
+                        .login("http://127.0.0.1:8000/auth/login/", {
                       'username': username,
                       'password': password,
                     });
@@ -191,6 +191,35 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("or "),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const MyHomePage(isAuthenticated: false),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Continue as Guest",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    )
+                  ],
+                )
               ],
             ),
           ),

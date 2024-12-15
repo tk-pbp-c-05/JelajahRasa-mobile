@@ -8,7 +8,11 @@ import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final bool isAuthenticated;
+  const MyHomePage({
+    super.key,
+    this.isAuthenticated = true,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -36,20 +40,29 @@ class _MyHomePageState extends State<MyHomePage> {
     PendingDishesScreen(), // Halaman katalog
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    isAuthenticated = widget.isAuthenticated;
+  }
+
   void _handleMenuSelection(String value) {
     switch (value) {
       case 'Profile':
         // Navigasi ke halaman profil
         break;
       case 'Check New Dish':
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PendingDishesScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => PendingDishesScreen()));
         break;
       case 'Request Status':
-        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestStatusScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => RequestStatusScreen()));
         break;
       case 'Logout':
         setState(() {
-          isAuthenticated = false; // Set status autentikasi ke false saat logout
+          isAuthenticated =
+              false; // Set status autentikasi ke false saat logout
           _currentIndex = 0; // Reset ke halaman Home
         });
         break;
@@ -65,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // Tentukan daftar halaman berdasarkan status autentikasi
-    final List<Widget> pages = isAuthenticated ? _authenticatedPages : _guestPages;
+    final List<Widget> pages =
+        isAuthenticated ? _authenticatedPages : _guestPages;
 
     // Tentukan item Bottom Navigation Bar berdasarkan status autentikasi
     final List<BottomNavigationBarItem> bottomNavItems = isAuthenticated
@@ -79,25 +93,33 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+                _currentIndex == 1
+                    ? FontAwesomeIcons.solidCompass
+                    : FontAwesomeIcons.compass,
               ),
               label: "Catalogue",
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                _currentIndex == 2 ? Icons.people_alt : Icons.people_alt_outlined,
+                _currentIndex == 2
+                    ? Icons.people_alt
+                    : Icons.people_alt_outlined,
               ),
               label: "Community",
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                _currentIndex == 3 ? Icons.favorite : Icons.favorite_border_outlined,
+                _currentIndex == 3
+                    ? Icons.favorite
+                    : Icons.favorite_border_outlined,
               ),
               label: "Favorites",
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                _currentIndex == 4 ? FontAwesomeIcons.circlePlus : FontAwesomeIcons.squarePlus,
+                _currentIndex == 4
+                    ? FontAwesomeIcons.circlePlus
+                    : FontAwesomeIcons.squarePlus,
               ),
               label: "Add Dish",
             ),
@@ -112,7 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(
-                _currentIndex == 1 ? FontAwesomeIcons.solidCompass : FontAwesomeIcons.compass,
+                _currentIndex == 1
+                    ? FontAwesomeIcons.solidCompass
+                    : FontAwesomeIcons.compass,
               ),
               label: "Catalogue",
             ),
@@ -158,7 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Icon(Icons.check_circle, color: Colors.black),
                           SizedBox(width: 10),
-                          Text('Check New Dish', style: TextStyle(color: Colors.black)),
+                          Text('Check New Dish',
+                              style: TextStyle(color: Colors.black)),
                         ],
                       ),
                     )
@@ -169,7 +194,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Icon(Icons.assignment, color: Colors.black),
                           SizedBox(width: 10),
-                          Text('Request Status', style: TextStyle(color: Colors.black)),
+                          Text('Request Status',
+                              style: TextStyle(color: Colors.black)),
                         ],
                       ),
                     ),
@@ -232,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-    Widget _buildSection(String title, BuildContext context) {
+  Widget _buildSection(String title, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -246,9 +272,21 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: const [
-              FoodCard(title: 'Bakso Malang', price: 'Rp 14.290', rating: 5.0, reviews: 5),
-              FoodCard(title: 'Rawon Malang', price: 'Rp 20.000', rating: 4.8, reviews: 10),
-              FoodCard(title: 'Bakso Malang', price: 'Rp 17.500', rating: 4.8, reviews: 5),
+              FoodCard(
+                  title: 'Bakso Malang',
+                  price: 'Rp 14.290',
+                  rating: 5.0,
+                  reviews: 5),
+              FoodCard(
+                  title: 'Rawon Malang',
+                  price: 'Rp 20.000',
+                  rating: 4.8,
+                  reviews: 10),
+              FoodCard(
+                  title: 'Bakso Malang',
+                  price: 'Rp 17.500',
+                  rating: 4.8,
+                  reviews: 5),
             ],
           ),
         ),
@@ -262,17 +300,17 @@ class HomePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Welcome Back, user",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             "What food do you have in mind?",
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),

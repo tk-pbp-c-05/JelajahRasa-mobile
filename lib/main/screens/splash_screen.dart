@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Stack(
           children: [
             Opacity(
-              opacity: 1,
+              opacity: 0.2,
               child: Image.asset(
                 'assets/background.png',
                 fit: BoxFit.cover,
