@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:jelajah_rasa_mobile/main/screens/login.dart';
-
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:jelajah_rasa_mobile/main/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,12 +24,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch(
             primarySwatch: Colors.deepOrange,
           ).copyWith(
-            primary: const Color(0xFFAB4A2F), // Primary color: AB4A2F (Reddish-brown)
-            secondary: const Color(0xFFE1A85F), // Secondary color: E1A85F (Soft yellow-brown)
+            primary: const Color(0xFFF18F73),  // Primary color: F18F73 (Reddish-orange)
+            secondary: const Color(0xFFE1A85F),  // Secondary color: E1A85F (Soft yellow-brown)
           ),
-          scaffoldBackgroundColor: const Color(0xFFF5F5F5), // Light background color (optional)
+          scaffoldBackgroundColor: const Color(0xFFF5F5F5),  // Background color: F5F5F5 (light gray)
         ),
-        home: const LoginPage(),
+        home: const SplashScreen(),
       ),
     );
   }
