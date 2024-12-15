@@ -56,44 +56,32 @@ class _EditDishState extends State<EditDish> {
     super.dispose();
   }
 
-  Future<void> _updateDish(NewDishEntry updatedDish) async {
-    final request = context.read<CookieRequest>();
-    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
+Future<void> _updateDish(NewDishEntry updatedDish) async {
+  final request = context.read<CookieRequest>();
+  final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
 
-    try {
-      final response = await request.post(
-        apiUrl,
-        jsonEncode({
-          '_method': 'PUT',  // Menambahkan metode PUT secara eksplisit
-          'name': updatedDish.name,
-          'flavor': updatedDish.flavor,
-          'category': updatedDish.category,
-          'vendor_name': updatedDish.vendorName,
-          'price': updatedDish.price,
-          'map_link': updatedDish.mapLink,
-          'address': updatedDish.address,
-          'image': updatedDish.image,
-        }),
-      );
+  try {
+    final response = await request.post(
+      apiUrl,
+      jsonEncode(updatedDish.toJson()),
+    );
 
-      // Asumsikan respons dari server mengandung 'success' untuk menentukan keberhasilan
-      bool? isSuccess = response['success'] as bool?;
-
-      if (isSuccess == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Dish updated successfully!')),
-        );
-        Navigator.pop(context, updatedDish);
-      } else {
-        throw Exception('Failed to update dish');
-      }
-    } catch (e) {
+    if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        const SnackBar(content: Text('Dish updated successfully!')),
+      );
+      Navigator.pop(context, updatedDish);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${response['message']}')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
-
+}
 
   void _saveDish() {
     if (_formKey.currentState?.validate() ?? false) {
@@ -109,7 +97,7 @@ class _EditDishState extends State<EditDish> {
         image: imageUrlController.text,
         isApproved: false,
         isRejected: false,
-        status: 'Pending',
+        status: 'Rejected',
         userUsername: widget.dish.userUsername,
       );
 

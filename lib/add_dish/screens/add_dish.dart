@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/add_dish/models/newdish_entry.dart';
+import 'package:jelajah_rasa_mobile/main/screens/home.dart';
 import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ Future<void> _submitDishToServer(NewDishEntry newDish) async {
 
     if (response['status'] == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dish added successfully!')),
+        SnackBar(content: Text('${response['message']}')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,91 +92,126 @@ void _saveDish() {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Add Dish',
-          style: TextStyle(color: Colors.white),
+          'Add New Dish',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
-        backgroundColor: Color(0xFFF18F73),
+        centerTitle: true,
+        backgroundColor: Color(0xFFFFFFFFF),
       ),
-      body: Padding(
+      body: Container(
+        color: const Color(0xFFF4E7B2), // Background warna kuning
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              // Dish Name
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Dish Name'),
+              buildInputField('Name', TextFormField(
+                decoration: inputDecoration(),
                 onChanged: (value) => dishName = value,
-                validator: (value) => value == null || value.isEmpty ? 'Dish name is required' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Flavor
-              DropdownButtonFormField<String>(
+                validator: (value) => value == null || value.isEmpty ? 'Name is required' : null,
+              )),
+              buildInputField('Flavor', DropdownButtonFormField<String>(
                 value: flavor,
-                decoration: const InputDecoration(labelText: 'Flavor'),
+                decoration: inputDecoration(),
                 items: flavors.map((flavor) => DropdownMenuItem(value: flavor, child: Text(flavor))).toList(),
                 onChanged: (value) => setState(() => flavor = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Category
-              DropdownButtonFormField<String>(
+              )),
+              buildInputField('Category', DropdownButtonFormField<String>(
                 value: category,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: inputDecoration(),
                 items: categories.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
                 onChanged: (value) => setState(() => category = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Vendor Name
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Vendor Name'),
+              )),
+              buildInputField('Vendor Name', TextFormField(
+                decoration: inputDecoration(),
                 onChanged: (value) => vendorName = value,
-              ),
-              const SizedBox(height: 16),
-
-              // Price
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Price'),
+              )),
+              buildInputField('Price', TextFormField(
+                decoration: inputDecoration(),
                 keyboardType: TextInputType.number,
                 onChanged: (value) => price = int.tryParse(value) ?? 0,
-              ),
-              const SizedBox(height: 16),
-
-              // Map Link
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Map Link'),
+              )),
+              buildInputField('Map Link', TextFormField(
+                decoration: inputDecoration(),
                 onChanged: (value) => mapLink = value,
-              ),
-              const SizedBox(height: 16),
-
-              // Address
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Address'),
+              )),
+              buildInputField('Address', TextFormField(
+                decoration: inputDecoration(),
                 onChanged: (value) => address = value,
-              ),
-              const SizedBox(height: 16),
-
-              // Image URL
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Image URL'),
+              )),
+              buildInputField('Image', TextFormField(
+                decoration: inputDecoration(),
                 onChanged: (value) => imageUrl = value,
-              ),
-              const SizedBox(height: 24),
-
-              // Submit Button
-              ElevatedButton(
-                onPressed: _saveDish,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF18F73),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Save', style: TextStyle(color: Colors.white)),
-              ),
+              )),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Tombol Add
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _saveDish,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE0A85E),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Add', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Memberikan jarak antara tombol Add dan Cancel
+                  // Tombol Cancel
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage())),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFAB4A2F),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildInputField(String label, Widget inputField) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          inputField,
+        ],
+      ),
+    );
+  }
+
+  InputDecoration inputDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      border: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color(0xFFAB4A2F), width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color:Color(0xFFAB4A2F), width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color(0xFFAB4A2F), width: 2),
+        borderRadius: BorderRadius.circular(8),
       ),
     );
   }

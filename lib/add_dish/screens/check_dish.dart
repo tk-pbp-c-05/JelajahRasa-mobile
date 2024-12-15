@@ -12,47 +12,65 @@ class PendingDishesScreen extends StatefulWidget {
 
 class _PendingDishesScreenState extends State<PendingDishesScreen> {
   List<NewDishEntry> pendingDishes = [];
+  List<NewDishEntry> filteredDishes = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchPendingDishes();
+    _searchController.addListener(_filterDishes);
   }
 
-Future<void> fetchPendingDishes() async {
-  final request = context.read<CookieRequest>();
-  const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-  try {
-    final response = await request.get(apiUrl);
+  Future<void> fetchPendingDishes() async {
+    final request = context.read<CookieRequest>();
+    const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
 
-    if (response is List) {
-      List<NewDishEntry> dishes = response.map((item) {
-        try {
-          return NewDishEntry.fromJson(item);
-        } catch (e) {
-          print('Error parsing dish: $e');
-          return null; // Jika parsing gagal, kembalikan null
-        }
-      }).whereType<NewDishEntry>().toList(); // Filter out null values
+    try {
+      final response = await request.get(apiUrl);
 
-      setState(() {
-        pendingDishes = dishes;
-      });
-    } else {
-      throw Exception('Failed to load dishes');
+      if (response is List) {
+        List<NewDishEntry> dishes = response.map((item) {
+          try {
+            return NewDishEntry.fromJson(item);
+          } catch (e) {
+            print('Error parsing dish: $e');
+            return null;
+          }
+        }).whereType<NewDishEntry>().toList();
+
+        setState(() {
+          pendingDishes = dishes;
+          filteredDishes = dishes;
+        });
+      } else {
+        throw Exception('${response['message']}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
 
+  void _filterDishes() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredDishes = pendingDishes.where((dish) {
+        return dish.name.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
 
   Future<void> approveDish(String uuid) async {
     final request = context.read<CookieRequest>();
-    final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
+    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-approve-dish/$uuid/';
 
     try {
       final response = await request.post(
@@ -60,14 +78,15 @@ Future<void> fetchPendingDishes() async {
         jsonEncode({'action': 'approve'}),
       );
 
-      bool? isSuccess = response['success']; // Nullable type
+      bool? isSuccess = response['success'];
 
       if (isSuccess == true) {
         setState(() {
           pendingDishes.removeWhere((dish) => dish.uuid == uuid);
+          filteredDishes.removeWhere((dish) => dish.uuid == uuid);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Dish approved successfully!')),
+          const SnackBar(content: Text('Dish approved successfully!')),
         );
       } else {
         throw Exception('Failed to approve dish');
@@ -81,7 +100,7 @@ Future<void> fetchPendingDishes() async {
 
   Future<void> rejectDish(String uuid) async {
     final request = context.read<CookieRequest>();
-    final String apiUrl = 'http://127.0.0.1:8000/module4/approve-dish/$uuid/';
+    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-approve-dish/$uuid/';
 
     try {
       final response = await request.post(
@@ -89,14 +108,15 @@ Future<void> fetchPendingDishes() async {
         jsonEncode({'action': 'reject'}),
       );
 
-      bool? isSuccess = response['success']; // Nullable type
+      bool? isSuccess = response['success'];
 
       if (isSuccess == true) {
         setState(() {
           pendingDishes.removeWhere((dish) => dish.uuid == uuid);
+          filteredDishes.removeWhere((dish) => dish.uuid == uuid);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Dish rejected successfully!')),
+          const SnackBar(content: Text('Dish rejected successfully!')),
         );
       } else {
         throw Exception('Failed to reject dish');
@@ -114,64 +134,97 @@ Future<void> fetchPendingDishes() async {
       appBar: AppBar(
         title: const Text(
           'Pending Dishes',
-          style: TextStyle(fontSize: 24, color: Color(0xFFF4B5A4)),
+          style: TextStyle(fontSize: 24, color: Colors.black),
         ),
         backgroundColor: Colors.white70,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Color(0xFFF4B5A4)),
+            onPressed: fetchPendingDishes,
+          ),
+        ],
       ),
-      body: pendingDishes.isEmpty
-          ? const Center(child: Text('No pending dishes found.'))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView.builder(
-                itemCount: pendingDishes.length,
-                itemBuilder: (context, index) {
-                  final dish = pendingDishes[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Dish',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+          ),
+          Expanded(
+            child: filteredDishes.isEmpty
+                ? const Center(child: Text('No pending dishes found.'))
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView.builder(
+                      itemCount: filteredDishes.length,
+                      itemBuilder: (context, index) {
+                        final dish = filteredDishes[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
                               children: [
-                                Text('Name: ${dish.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text('Flavor: ${dish.flavor}'),
-                                Text('Category: ${dish.category}'),
-                                Text('Vendor: ${dish.vendorName}'),
-                                Text('Price: \$${dish.price.toStringAsFixed(2)}'),
-                                Text('Map Link: ${dish.mapLink}'),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Name: ${dish.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text('Flavor: ${dish.flavor}'),
+                                      Text('Category: ${dish.category}'),
+                                      Text('Vendor: ${dish.vendorName}'),
+                                      Text('Price: \$${dish.price.toStringAsFixed(2)}'),
+                                      Text('Map Link: ${dish.mapLink}'),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Image.network(
+                                  dish.image,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.network(
+                                      'https://i.imgur.com/qCP9R4y.jpeg', // Gambar default
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  children: [
+                                    IconButton(
+                                      icon: const FaIcon(FontAwesomeIcons.check, color: Colors.green),
+                                      onPressed: () => approveDish(dish.uuid),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.cancel, color: Colors.red),
+                                      onPressed: () => rejectDish(dish.uuid),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Image.network(
-                            dish.image,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            children: [
-                              IconButton(
-                                icon: const FaIcon(FontAwesomeIcons.check, color: Colors.green),
-                                onPressed: () => approveDish(dish.uuid),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.cancel, color: Colors.red),
-                                onPressed: () => rejectDish(dish.uuid),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

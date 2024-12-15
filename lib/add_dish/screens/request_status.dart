@@ -10,9 +10,6 @@ class RequestStatusScreen extends StatefulWidget {
 }
 
 class _RequestStatusScreenState extends State<RequestStatusScreen> {
-  TextEditingController _searchController = TextEditingController();
-
-  // Sample data for requested dishes
   List<NewDishEntry> requests = [];
 
   @override
@@ -21,16 +18,17 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
     fetchUserRequests();
   }
 
-
   Future<void> fetchUserRequests() async {
     final request = context.read<CookieRequest>();
-    const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-user-dishes/';
+    const String apiUrl =
+        'http://127.0.0.1:8000/module4/flutter-get-user-dishes/';
 
     try {
       final response = await request.get(apiUrl);
 
       if (response is List) {
-        List<NewDishEntry> userRequests = response.map((item) => NewDishEntry.fromJson(item)).toList();
+        List<NewDishEntry> userRequests =
+            response.map((item) => NewDishEntry.fromJson(item)).toList();
 
         setState(() {
           requests = userRequests;
@@ -45,6 +43,36 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
     }
   }
 
+Future<void> deleteDish(String uuid) async {
+  final request = context.read<CookieRequest>();
+  final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-delete-rejected-dish/$uuid/';
+
+  try {
+    // Menggunakan form-data untuk mengirim parameter _method
+    final response = await request.post(
+      apiUrl,
+      {'_method': 'DELETE'}, // Kirim sebagai form-data, bukan JSON
+    );
+
+    bool? isSuccess = response['success'];
+
+    if (isSuccess == true) {
+      setState(() {
+        requests.removeWhere((dish) => dish.uuid == uuid);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dish deleted successfully!')),
+      );
+    } else {
+      throw Exception(response['error'] ?? 'Failed to delete dish');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,121 +83,168 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
         ),
         backgroundColor: Colors.white70,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search bar
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5, spreadRadius: 2)
-                ],
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Search Request',
-                  border: InputBorder.none,
-                  suffixIcon: Icon(Icons.search),
+      body: ListView.builder(
+        itemCount: requests.length,
+        itemBuilder: (context, index) {
+          final request = requests[index];
+
+          String statusText;
+          Color statusColor;
+          Widget actionWidget;
+
+          if (request.status == 'Approved' && request.isApproved && !request.isRejected) {
+            statusText = 'Accepted';
+            statusColor = Colors.green;
+            actionWidget = const Text(
+              'Your request is accepted.',
+              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            );
+          } else if (request.status == 'Pending' && !request.isApproved && !request.isRejected) {
+            statusText = 'Pending';
+            statusColor = Colors.yellow;
+            actionWidget = const Text(
+              'Please wait, we are checking your request.',
+              style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            );
+          } else if (request.status == 'Rejected' && !request.isApproved && request.isRejected) {
+            statusText = 'Rejected';
+            statusColor = Colors.red;
+            actionWidget = Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Your request is rejected, please change the data requested.',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ),
-            // Request table
-            Expanded(
-              child: ListView.builder(
-                itemCount: requests.length,
-                itemBuilder: (context, index) {
-                  final request = requests[index];
-
-                  String statusText;
-                  Color statusColor;
-
-                  if (request.status == 'Approved' && request.isApproved && !request.isRejected) {
-                    statusText = 'Accepted';
-                    statusColor = Colors.green;
-                  } else if (request.status == 'Pending' && !request.isApproved && !request.isRejected) {
-                    statusText = 'Pending';
-                    statusColor = Colors.yellow;
-                  } else if (request.status == 'Rejected' && !request.isApproved && request.isRejected) {
-                    statusText = 'Rejected';
-                    statusColor = Colors.red;
-                  } else {
-                    statusText = 'Unknown';
-                    statusColor = Colors.grey;
-                  }
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EditDish(dish: request)),
+                        ).then((updatedDish) {
+                          if (updatedDish != null) {
+                            setState(() {
+                              int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
+                              if (index != -1) {
+                                requests[index] = updatedDish;
+                              }
+                            });
+                          }
+                        });
+                      },
+                      child: const Text('Edit', style: TextStyle(color: Colors.blue)),
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12.0),
-                      leading: Image.network(request.image),
-                      title: Text(request.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Flavor: ${request.flavor}'),
-                          Text('Category: ${request.category}'),
-                          Text('Vendor: ${request.vendorName}'),
-                          Text('Price: \$${request.price.toStringAsFixed(2)}'),
-                          Text('Map Link: ${request.mapLink}'),
-                        ],
+                    TextButton(
+                      onPressed: () => deleteDish(request.uuid),
+                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          } else {
+            statusText = 'Unknown';
+            statusColor = Colors.grey;
+            actionWidget = const SizedBox.shrink();
+          }
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(5),
+                  1: FlexColumnWidth(1),
+                  2: FlexColumnWidth(3),
+                },
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: [
+                  const TableRow(
+                    decoration: BoxDecoration(color: Color(0xFFF1F1F1)),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Data', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            statusText,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
-                            ),
-                          ),
-                          if (request.status == 'Rejected' && !request.isApproved && request.isRejected)
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => EditDish(dish: request)),
-                                ).then((updatedDish) {
-                                  if (updatedDish != null) {
-                                    setState(() {
-                                      int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
-                                      if (index != -1) {
-                                        requests[index] = updatedDish;
-                                      }
-                                    });
-                                  }
-                                });
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
+                      ),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Image.network(
+                              request.image,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.network(
+                                  'https://i.imgur.com/qCP9R4y.jpeg', // Gambar default
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                );
                               },
-                              child: const Text(
-                                'Edit',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    request.name,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  Text('Flavor: ${request.flavor}'),
+                                  Text('Category: ${request.category}'),
+                                  Text('Vendor: ${request.vendorName}'),
+                                  Text('Price: \$${request.price.toStringAsFixed(2)}'),
+                                  Text('Map Link: ${request.mapLink}'),
+                                  Text('Address: ${request.address}'),
+                                ],
                               ),
                             ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          statusText,
+                          style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: actionWidget,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
-
 }
