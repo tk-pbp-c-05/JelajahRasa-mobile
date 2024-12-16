@@ -133,6 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                           );
                       }
                     } else {
+                      _passwordController.clear();
+
                       if (context.mounted) {
                         showDialog(
                           context: context,
@@ -142,9 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                             actions: [
                               TextButton(
                                 child: const Text('OK'),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
+                                onPressed: () => Navigator.pop(context),
                               ),
                             ],
                           ),
