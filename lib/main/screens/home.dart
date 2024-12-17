@@ -4,14 +4,19 @@ import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
+import 'package:jelajah_rasa_mobile/main/screens/login.dart';
+import 'package:jelajah_rasa_mobile/main/screens/register.dart';
 import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
+  final bool isAdmin;
+
   const MyHomePage({
     super.key,
     this.isAuthenticated = true,
+    this.isAdmin = false,
   });
 
   @override
@@ -23,27 +28,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Simulasi status autentikasi dan role user
   bool isAuthenticated = true; // Ganti ke true jika user sudah login
-  bool isStaff = false; // Ganti ke true jika user adalah staff/admin
+  bool isAdmin = false; // Ganti ke true jika user adalah staff/admin
 
   // Daftar halaman untuk user yang sudah login
-  final List<Widget> _authenticatedPages = [
-    const HomePageContent(), // Halaman utama
-    PendingDishesScreen(), // Halaman katalog
-    const AddDish(), // Halaman komunitas
-    const ShowFavorite(), // Halaman favorit
-    const AddDish(), // Halaman Add Dish
-  ];
+  List<Widget> get _authenticatedPages => [
+        HomePageContent(isAdmin: isAdmin),
+        PendingDishesScreen(),
+        const AddDish(),
+        const ShowFavorite(),
+        const AddDish(),
+      ];
 
   // Daftar halaman untuk user yang belum login
-  final List<Widget> _guestPages = [
-    const HomePageContent(), // Halaman utama
-    PendingDishesScreen(), // Halaman katalog
-  ];
+  List<Widget> get _guestPages => [
+        const HomePageContent(),
+      ];
 
   @override
   void initState() {
     super.initState();
     isAuthenticated = widget.isAuthenticated;
+    isAdmin = widget.isAdmin;
   }
 
   void _handleMenuSelection(String value) {
@@ -63,14 +68,18 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           isAuthenticated =
               false; // Set status autentikasi ke false saat logout
+          isAdmin = false; // Set status staff ke false saat logout
           _currentIndex = 0; // Reset ke halaman Home
         });
         break;
       case 'Login':
         // Navigasi ke halaman login
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
         break;
       case 'Register':
         // Navigasi ke halaman register
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/register', (route) => false);
         break;
     }
   }
@@ -92,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Home",
             ),
             BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
               icon: Icon(
                 _currentIndex == 1
                     ? FontAwesomeIcons.solidCompass
@@ -100,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Catalogue",
             ),
             BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
               icon: Icon(
                 _currentIndex == 2
                     ? Icons.people_alt
@@ -108,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Community",
             ),
             BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
               icon: Icon(
                 _currentIndex == 3
                     ? Icons.favorite
@@ -116,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "Favorites",
             ),
             BottomNavigationBarItem(
+              backgroundColor: const Color(0xFFAB4A2F),
               icon: Icon(
                 _currentIndex == 4
                     ? FontAwesomeIcons.circlePlus
@@ -175,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  if (isStaff)
+                  if (isAdmin)
                     const PopupMenuItem(
                       value: 'Check New Dish',
                       child: Row(
@@ -296,21 +309,26 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomePageContent extends StatelessWidget {
-  const HomePageContent({super.key});
+  final bool isAdmin;
+
+  const HomePageContent({
+    super.key,
+    this.isAdmin = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Welcome Back, user",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            isAdmin ? "Welcome Back, Admin" : "Welcome Back, User",
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             "What food do you have in mind?",
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),

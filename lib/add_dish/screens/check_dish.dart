@@ -6,6 +6,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:convert';
 
 class PendingDishesScreen extends StatefulWidget {
+  const PendingDishesScreen({super.key});
+
   @override
   _PendingDishesScreenState createState() => _PendingDishesScreenState();
 }
@@ -13,7 +15,7 @@ class PendingDishesScreen extends StatefulWidget {
 class _PendingDishesScreenState extends State<PendingDishesScreen> {
   List<NewDishEntry> pendingDishes = [];
   List<NewDishEntry> filteredDishes = [];
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jelajah_rasa_mobile/main/screens/splash_screen.dart';
+import 'package:jelajah_rasa_mobile/main/screens/login.dart';
+import 'package:jelajah_rasa_mobile/main/screens/register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +36,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
         home: const SplashScreen(),
+        routes: {
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+        },
       ),
     );
   }

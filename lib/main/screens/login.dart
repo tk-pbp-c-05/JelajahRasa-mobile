@@ -106,41 +106,68 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
-                    String username = _usernameController.text;
-                    String password = _passwordController.text;
+                    try {
+                      String username = _usernameController.text;
+                      String password = _passwordController.text;
 
-                    final response = await request
-                        .login("http://127.0.0.1:8000/auth/login/", {
-                      'username': username,
-                      'password': password,
-                    });
+                      final response = await request.login(
+                        "http://127.0.0.1:8000/auth/login/",
+                        {
+                          'username': username,
+                          'password': password,
+                        },
+                      );
 
-                    if (request.loggedIn) {
-                      String message = response['message'];
-                      String uname = response['username'];
-                      if (context.mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MyHomePage()),
-                        );
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text("$message Selamat datang, $uname.")),
+                      if (request.loggedIn) {
+                        String message =
+                            response['message'] ?? "Login successful!";
+                        String uname = response['username'] ?? username;
+                        bool isAdmin = response['is_admin'] ?? false;
+
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MyHomePage(
+                                isAuthenticated: true,
+                                isAdmin: isAdmin,
+                              ),
+                            ),
                           );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                  content: Text("Selamat datang, $uname.")),
+                            );
+                        }
+                      } else {
+                        _passwordController.clear();
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Login Gagal'),
+                              content:
+                                  Text(response['message'] ?? "Login failed"),
+                              actions: [
+                                TextButton(
+                                  child: const Text('OK'),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                       }
-                    } else {
+                    } catch (e) {
                       _passwordController.clear();
-
                       if (context.mounted) {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Login Gagal'),
-                            content: Text(response['message']),
+                            title: const Text('Error'),
+                            content: const Text('Failed to connect to server'),
                             actions: [
                               TextButton(
                                 child: const Text('OK'),

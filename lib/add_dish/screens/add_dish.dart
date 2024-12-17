@@ -96,7 +96,7 @@ void _saveDish() {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFFFFFFFFF),
+        backgroundColor: const Color(0xfffffffff),
       ),
       body: Container(
         color: const Color(0xFFF4E7B2), // Background warna kuning

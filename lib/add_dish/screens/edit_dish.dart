@@ -146,10 +146,10 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
               ElevatedButton(
                 onPressed: _saveDish,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF18F73),
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0xFFF18F73),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),

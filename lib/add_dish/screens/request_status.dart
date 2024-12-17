@@ -5,6 +5,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class RequestStatusScreen extends StatefulWidget {
+  const RequestStatusScreen({super.key});
+
   @override
   _RequestStatusScreenState createState() => _RequestStatusScreenState();
 }
@@ -43,35 +45,36 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
     }
   }
 
-Future<void> deleteDish(String uuid) async {
-  final request = context.read<CookieRequest>();
-  final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-delete-rejected-dish/$uuid/';
+  Future<void> deleteDish(String uuid) async {
+    final request = context.read<CookieRequest>();
+    final String apiUrl =
+        'http://127.0.0.1:8000/module4/flutter-delete-rejected-dish/$uuid/';
 
-  try {
-    // Menggunakan form-data untuk mengirim parameter _method
-    final response = await request.post(
-      apiUrl,
-      {'_method': 'DELETE'}, // Kirim sebagai form-data, bukan JSON
-    );
-
-    bool? isSuccess = response['success'];
-
-    if (isSuccess == true) {
-      setState(() {
-        requests.removeWhere((dish) => dish.uuid == uuid);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dish deleted successfully!')),
+    try {
+      // Menggunakan form-data untuk mengirim parameter _method
+      final response = await request.post(
+        apiUrl,
+        {'_method': 'DELETE'}, // Kirim sebagai form-data, bukan JSON
       );
-    } else {
-      throw Exception(response['error'] ?? 'Failed to delete dish');
+
+      bool? isSuccess = response['success'];
+
+      if (isSuccess == true) {
+        setState(() {
+          requests.removeWhere((dish) => dish.uuid == uuid);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dish deleted successfully!')),
+        );
+      } else {
+        throw Exception(response['error'] ?? 'Failed to delete dish');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -92,23 +95,31 @@ Future<void> deleteDish(String uuid) async {
           Color statusColor;
           Widget actionWidget;
 
-          if (request.status == 'Approved' && request.isApproved && !request.isRejected) {
+          if (request.status == 'Approved' &&
+              request.isApproved &&
+              !request.isRejected) {
             statusText = 'Accepted';
             statusColor = Colors.green;
             actionWidget = const Text(
               'Your request is accepted.',
-              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             );
-          } else if (request.status == 'Pending' && !request.isApproved && !request.isRejected) {
+          } else if (request.status == 'Pending' &&
+              !request.isApproved &&
+              !request.isRejected) {
             statusText = 'Pending';
             statusColor = Colors.yellow;
             actionWidget = const Text(
               'Please wait, we are checking your request.',
-              style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             );
-          } else if (request.status == 'Rejected' && !request.isApproved && request.isRejected) {
+          } else if (request.status == 'Rejected' &&
+              !request.isApproved &&
+              request.isRejected) {
             statusText = 'Rejected';
             statusColor = Colors.red;
             actionWidget = Column(
@@ -116,7 +127,8 @@ Future<void> deleteDish(String uuid) async {
               children: [
                 const Text(
                   'Your request is rejected, please change the data requested.',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -127,11 +139,13 @@ Future<void> deleteDish(String uuid) async {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => EditDish(dish: request)),
+                          MaterialPageRoute(
+                              builder: (context) => EditDish(dish: request)),
                         ).then((updatedDish) {
                           if (updatedDish != null) {
                             setState(() {
-                              int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
+                              int index = requests.indexWhere((element) =>
+                                  element.uuid == updatedDish.uuid);
                               if (index != -1) {
                                 requests[index] = updatedDish;
                               }
@@ -139,11 +153,13 @@ Future<void> deleteDish(String uuid) async {
                           }
                         });
                       },
-                      child: const Text('Edit', style: TextStyle(color: Colors.blue)),
+                      child: const Text('Edit',
+                          style: TextStyle(color: Colors.blue)),
                     ),
                     TextButton(
                       onPressed: () => deleteDish(request.uuid),
-                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                      child: const Text('Delete',
+                          style: TextStyle(color: Colors.red)),
                     ),
                   ],
                 ),
@@ -172,15 +188,23 @@ Future<void> deleteDish(String uuid) async {
                     children: [
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text('Data', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: Text('Data',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text('Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
+                        child: Text('Status',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                            textAlign: TextAlign.center),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
+                        child: Text('Action',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                            textAlign: TextAlign.center),
                       ),
                     ],
                   ),
@@ -211,12 +235,15 @@ Future<void> deleteDish(String uuid) async {
                                 children: [
                                   Text(
                                     request.name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
                                   ),
                                   Text('Flavor: ${request.flavor}'),
                                   Text('Category: ${request.category}'),
                                   Text('Vendor: ${request.vendorName}'),
-                                  Text('Price: \$${request.price.toStringAsFixed(2)}'),
+                                  Text(
+                                      'Price: \$${request.price.toStringAsFixed(2)}'),
                                   Text('Map Link: ${request.mapLink}'),
                                   Text('Address: ${request.address}'),
                                 ],
@@ -229,7 +256,8 @@ Future<void> deleteDish(String uuid) async {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           statusText,
-                          style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: statusColor, fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),
                       ),
