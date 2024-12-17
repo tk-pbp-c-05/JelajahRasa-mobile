@@ -4,8 +4,6 @@ import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
-import 'package:jelajah_rasa_mobile/main/screens/login.dart';
-import 'package:jelajah_rasa_mobile/main/screens/register.dart';
 import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
 
