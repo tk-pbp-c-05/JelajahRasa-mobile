@@ -165,7 +165,6 @@ class _MyHomePageState extends State<MyHomePage> {
           fit: BoxFit.contain,
         ),
         centerTitle: true,
-        leading: const Icon(Icons.search, color: Colors.brown),
         actions: [
           PopupMenuButton<String>(
             icon: Icon(
@@ -257,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: const LeftDrawer(), // Keep the drawer here
+      drawer: const LeftDrawer(),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
