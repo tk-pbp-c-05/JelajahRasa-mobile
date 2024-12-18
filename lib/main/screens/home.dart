@@ -6,6 +6,8 @@ import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
@@ -63,12 +65,14 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => RequestStatusScreen()));
         break;
       case 'Logout':
-        setState(() {
-          isAuthenticated =
-              false; // Set status autentikasi ke false saat logout
-          isAdmin = false; // Set status staff ke false saat logout
-          _currentIndex = 0; // Reset ke halaman Home
-        });
+        final request = context.read<CookieRequest>();
+        request.loggedIn = false;
+        request.jsonData.clear();
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/login',
+          (route) => false,
+        );
         break;
       case 'Login':
         // Navigasi ke halaman login
@@ -155,9 +159,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "JelajahRasa",
-          style: TextStyle(fontFamily: 'CustomFont', fontSize: 24),
+        title: Image.asset(
+          'assets/jelajah_rasa_text.png',
+          height: 40,
+          fit: BoxFit.contain,
         ),
         centerTitle: true,
         leading: const Icon(Icons.search, color: Colors.brown),
@@ -316,22 +321,263 @@ class HomePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    final request = context.watch<CookieRequest>();
+
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            isAdmin ? "Welcome Back, Admin" : "Welcome Back, User",
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFAE7E0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAdmin
+                      ? "Welcome Back, Admin"
+                      : "Welcome Back, ${request.jsonData['username'] ?? 'User'}",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFAB4A2F),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildIconButton(
+                      icon: FontAwesomeIcons.book,
+                      label: 'Catalogue',
+                      onTap: () {},
+                    ),
+                    _buildIconButton(
+                      icon: FontAwesomeIcons.users,
+                      label: 'Community',
+                      onTap: () {},
+                    ),
+                    _buildIconButton(
+                      icon: FontAwesomeIcons.heart,
+                      label: 'Favourites',
+                      onTap: () {},
+                    ),
+                    _buildIconButton(
+                      icon: FontAwesomeIcons.plus,
+                      label: 'Add Dish',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            "What food do you have in mind?",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Explore Malang's Culinary Gems!",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search for foods or drinks',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFFFEFE7),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildFoodSection(context, 'Most Liked Food'),
+                const SizedBox(height: 24),
+                _buildFoodSection(context, 'Most Popular Foods'),
+                const SizedBox(height: 24),
+                _buildLatestComments(context),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIconButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: const BoxDecoration(
+            color: Color(0xFFAB4A2F),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(icon, color: Colors.white),
+            onPressed: onTap,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFAB4A2F),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFoodSection(BuildContext context, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                'See More',
+                style: TextStyle(color: Color(0xFFAB4A2F)),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: SizedBox(
+                    width: 160,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                          child: Image.network(
+                            'https://i0.wp.com/resepkoki.id/wp-content/uploads/2017/05/Resep-Bakso-malang.jpg?fit=500%2C365&ssl=1',
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Bakso Malang',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star,
+                                    size: 16,
+                                    color: Colors.amber,
+                                  ),
+                                  const Text(' 4.8'),
+                                  const Text(' (5 Reviews)'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLatestComments(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Latest Food Mentions',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    'https://media.istockphoto.com/id/2151669184/vector/vector-flat-illustration-in-grayscale-avatar-user-profile-person-icon-gender-neutral.jpg?s=612x612&w=0&k=20&c=UEa7oHoOL30ynvmJzSCIPrwwopJdfqzBs0q69ezQoM8=',
+                  ),
+                ),
+                title: const Text('Bakso Malang'),
+                subtitle: const Text(
+                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
+                ),
+                onTap: () {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text("Opening comment..."),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                },
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

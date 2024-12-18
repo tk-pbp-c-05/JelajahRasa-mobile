@@ -95,5 +95,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
   assets:
+    - assets/
     - assets/background.png
     - assets/logo.png
+    - assets/jelajah_rasa_text.png
+    - assets/bakso_malang.png
