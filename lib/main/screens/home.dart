@@ -31,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isAdmin = false; // Ganti ke true jika user adalah staff/admin
 
   // Daftar halaman untuk user yang sudah login
-  List<Widget> get _authenticatedPages => [
+  List<Widget> _getAuthenticatedPages() => [
         HomePageContent(isAdmin: isAdmin),
         PendingDishesScreen(),
         const AddDish(),
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // Tentukan daftar halaman berdasarkan status autentikasi
     final List<Widget> pages =
-        isAuthenticated ? _authenticatedPages : _guestPages;
+        isAuthenticated ? _getAuthenticatedPages() : _guestPages;
 
     // Tentukan item Bottom Navigation Bar berdasarkan status autentikasi
     final List<BottomNavigationBarItem> bottomNavItems = isAuthenticated
@@ -354,21 +354,25 @@ class HomePageContent extends StatelessWidget {
                       icon: FontAwesomeIcons.book,
                       label: 'Catalogue',
                       onTap: () {},
+                      context: context,
                     ),
                     _buildIconButton(
                       icon: FontAwesomeIcons.users,
                       label: 'Community',
                       onTap: () {},
+                      context: context,
                     ),
                     _buildIconButton(
                       icon: FontAwesomeIcons.heart,
                       label: 'Favourites',
                       onTap: () {},
+                      context: context,
                     ),
                     _buildIconButton(
                       icon: FontAwesomeIcons.plus,
                       label: 'Add Dish',
                       onTap: () {},
+                      context: context,
                     ),
                   ],
                 ),
@@ -418,6 +422,7 @@ class HomePageContent extends StatelessWidget {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
     return Column(
       children: [
@@ -430,7 +435,17 @@ class HomePageContent extends StatelessWidget {
           ),
           child: IconButton(
             icon: Icon(icon, color: Colors.white),
-            onPressed: onTap,
+            onPressed: () {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text("Opening $label..."),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              onTap();
+            },
           ),
         ),
         const SizedBox(height: 8),
@@ -459,7 +474,23 @@ class HomePageContent extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(
+                      content: Text("Opening $title list..."),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                // TODO: Implement navigation to full list
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => FoodListPage(title: title),
+                //   ),
+                // );
+              },
               child: const Text(
                 'See More',
                 style: TextStyle(color: Color(0xFFAB4A2F)),
@@ -475,54 +506,73 @@ class HomePageContent extends StatelessWidget {
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.only(right: 16),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SizedBox(
-                    width: 160,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
-                          ),
-                          child: Image.network(
-                            'https://i0.wp.com/resepkoki.id/wp-content/uploads/2017/05/Resep-Bakso-malang.jpg?fit=500%2C365&ssl=1',
-                            height: 120,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                child: GestureDetector(
+                  onTap: () {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        const SnackBar(
+                          content: Text("Opening food details..."),
+                          duration: Duration(seconds: 1),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Bakso Malang',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star,
-                                    size: 16,
-                                    color: Colors.amber,
+                      );
+                    // TODO: Implement navigation to food detail
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => FoodDetailPage(foodId: index),
+                    //   ),
+                    // );
+                  },
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SizedBox(
+                      width: 160,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            child: Image.network(
+                              'https://i0.wp.com/resepkoki.id/wp-content/uploads/2017/05/Resep-Bakso-malang.jpg?fit=500%2C365&ssl=1',
+                              height: 120,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Bakso Malang',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const Text(' 4.8'),
-                                  const Text(' (5 Reviews)'),
-                                ],
-                              ),
-                            ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: Colors.amber,
+                                    ),
+                                    const Text(' 4.8'),
+                                    const Text(' (5 Reviews)'),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -538,12 +588,40 @@ class HomePageContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Latest Food Mentions',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Latest Food Mentions',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(
+                      content: Text("Opening Community..."),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                // TODO: Implement navigation to community
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => CommunityPage(),
+                //   ),
+                // );
+              },
+              child: const Text(
+                'See More',
+                style: TextStyle(color: Color(0xFFAB4A2F)),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         ListView.builder(
@@ -568,10 +646,17 @@ class HomePageContent extends StatelessWidget {
                     ..hideCurrentSnackBar()
                     ..showSnackBar(
                       const SnackBar(
-                        content: Text("Opening comment..."),
+                        content: Text("Opening comment details..."),
                         duration: Duration(seconds: 1),
                       ),
                     );
+                  // TODO: Implement navigation to comment detail
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => CommentDetailPage(commentId: index),
+                  //   ),
+                  // );
                 },
               ),
             );

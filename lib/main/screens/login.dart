@@ -3,6 +3,7 @@ import 'package:jelajah_rasa_mobile/main/screens/register.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:jelajah_rasa_mobile/main/screens/home.dart';
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -112,17 +113,31 @@ class _LoginPageState extends State<LoginPage> {
 
                       final response = await request.login(
                         "http://127.0.0.1:8000/auth/login/",
-                        {
+                        jsonEncode({
                           'username': username,
                           'password': password,
-                        },
+                        }),
                       );
 
-                      if (request.loggedIn) {
+                      // Debug prints
+                      print('Login Response:');
+                      print('Full response: $response');
+                      print('Is logged in: ${request.loggedIn}');
+                      print('Cookie data: ${request.jsonData}');
+
+                      if (response['status'] == 'success') {
                         String message =
                             response['message'] ?? "Login successful!";
                         String uname = response['username'] ?? username;
                         bool isAdmin = response['is_admin'] ?? false;
+
+                        // Debug prints for specific fields
+                        print('Username: $uname');
+                        print('Is Admin: $isAdmin');
+                        print('Message: $message');
+
+                        request.jsonData['is_admin'] = isAdmin;
+                        request.jsonData['username'] = uname;
 
                         if (context.mounted) {
                           Navigator.pushReplacement(
