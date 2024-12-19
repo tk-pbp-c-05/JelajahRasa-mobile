@@ -137,17 +137,29 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EditDish(dish: request)),
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.9,
+                                child: EditDish(dish: request),
+                              ),
+                            );
+                          },
                         ).then((updatedDish) {
                           if (updatedDish != null) {
                             setState(() {
-                              int index = requests.indexWhere((element) =>
-                                  element.uuid == updatedDish.uuid);
+                              int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
                               if (index != -1) {
                                 requests[index] = updatedDish;
+                                requests[index].status = 'Pending';
+                                requests[index].isApproved = false;
+                                requests[index].isRejected = false;
                               }
                             });
                           }
@@ -179,7 +191,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                 columnWidths: const {
                   0: FlexColumnWidth(5),
                   1: FlexColumnWidth(1),
-                  2: FlexColumnWidth(3),
+                  2: FlexColumnWidth(2),
                 },
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 children: [
