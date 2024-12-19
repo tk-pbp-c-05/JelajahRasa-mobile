@@ -136,7 +136,7 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
       appBar: AppBar(
         title: const Text(
           'Pending Dishes',
-          style: TextStyle(fontSize: 24, color: Colors.black),
+          style: TextStyle(fontSize: 24, color: Color(0xFFF4B5A4)),
         ),
         backgroundColor: Colors.white70,
         actions: [
