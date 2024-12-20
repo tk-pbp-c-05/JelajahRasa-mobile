@@ -15,6 +15,11 @@ class ShowFavorite extends StatefulWidget {
 
 class _ShowFavoritePageState extends State<ShowFavorite> {
   List<FavoriteDishEntry> dishes = [];
+  List<FavoriteDishEntry> filteredDishes = [];
+  String searchQuery = '';
+  String selectedCategory = '';
+  String selectedFlavor = '';
+
   Future<List<FavoriteDishEntry>> fetchFavoriteDishes(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/MyFavoriteDishes/json/');
     List<FavoriteDishEntry> listFavoriteDish = [];
@@ -53,36 +58,81 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
     }
   }
 
+  void applyFilters() {
+    setState(() {
+      filteredDishes = dishes.where((dish) {
+        final matchesSearchQuery = dish.fields.name.toLowerCase().contains(searchQuery.toLowerCase());
+        final matchesCategory = selectedCategory.isEmpty || dish.fields.category == selectedCategory;
+        return matchesSearchQuery && matchesCategory;
+      }).toList();
+    });
+  }
+
+  void clearFilters() {
+    setState(() {
+      searchQuery = '';
+      selectedCategory = '';
+      filteredDishes = dishes;
+    });
+  }
+
+  Future<void> fetchAndFilterDishes(CookieRequest request) async {
+    final fetchedDishes = await fetchFavoriteDishes(request);
+    setState(() {
+      dishes = fetchedDishes;
+      filteredDishes = fetchedDishes;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Search Bar & Buttons (unchanged)
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search by name",
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+          SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+                  DropdownButton<String>(
+                    value: selectedCategory.isEmpty ? null : selectedCategory,
+                    hint: const Text("Category"),
+                    items: ['Food', 'Beverage'].map((category) {
+                      return DropdownMenuItem(value: category, child: Text(category));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategory = value ?? '';
+                        applyFilters();
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 200, // Set a fixed width for the search bar
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Search by name",
+                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                          applyFilters();
+                        });
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.filter_list, color: Colors.grey),
-                  onPressed: () {},
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: clearFilters,
+                    child: const Text("Clear All", style: TextStyle(color: Color(0xFFAB4A2F))),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             // Buttons
@@ -153,9 +203,12 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
                   } else {
                     dishes = snapshot.data!;
                     return ListView.builder(
-                      itemCount: dishes.length,
-                      itemBuilder: (context, index) {
-                        final dish = dishes[index];
+                        itemCount: filteredDishes.isNotEmpty ? filteredDishes.length : dishes.length,
+                        itemBuilder: (context, index) {
+                          if (index >= (filteredDishes.isNotEmpty ? filteredDishes.length : dishes.length)) {
+                            return const SizedBox(); // Prevent out-of-bounds error
+                          }
+                        final dish = filteredDishes.isNotEmpty ? filteredDishes[index] : dishes[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8),
                           child: ListTile(
