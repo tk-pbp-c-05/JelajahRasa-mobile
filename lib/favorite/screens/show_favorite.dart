@@ -58,19 +58,6 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          "Favourite Dishes",
-          style: TextStyle(
-            color: Colors.brown,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -104,7 +91,7 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
+                    backgroundColor: const Color(0xFFAB4A2F),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -125,7 +112,7 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown.shade300,
+                    backgroundColor:const Color(0xFFF18F73),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -137,7 +124,7 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
                     );
                   },
                   child: const Text(
-                    "Select from Menu",
+                    "Select from Catalog",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

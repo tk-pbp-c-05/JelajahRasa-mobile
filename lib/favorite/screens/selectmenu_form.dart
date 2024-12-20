@@ -42,11 +42,11 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
           },
         ),
         title: const Text(
-          "Select From Menu",
+          "Select from Catalog",
           style: TextStyle(
-            color: Colors.black,
+            color: Color(0xFFAB4A2F),
             fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -137,7 +137,7 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.brown,
+                  backgroundColor: const Color(0xFFAB4A2F),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
