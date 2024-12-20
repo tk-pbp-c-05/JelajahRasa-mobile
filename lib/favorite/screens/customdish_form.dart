@@ -39,7 +39,7 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
         title: const Text(
           "Customize Your Dish",
           style: TextStyle(
-            color: Colors.brown,
+            color:Color(0xFFAB4A2F),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -226,7 +226,7 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
+                    backgroundColor: const Color(0xFFAB4A2F),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
