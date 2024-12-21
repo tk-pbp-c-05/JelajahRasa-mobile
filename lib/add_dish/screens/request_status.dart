@@ -75,6 +75,46 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
       );
     }
   }
+  Future<void> confirmDelete(String uuid) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this dish?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                deleteDish(uuid);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE0A85E),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              child: const Text(
+                'Yes',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFAB4A2F),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +209,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                           style: TextStyle(color: Colors.blue)),
                     ),
                     TextButton(
-                      onPressed: () => deleteDish(request.uuid),
+                      onPressed: () => confirmDelete(request.uuid),
                       child: const Text('Delete',
                           style: TextStyle(color: Colors.red)),
                     ),
