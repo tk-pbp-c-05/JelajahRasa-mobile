@@ -36,32 +36,32 @@ class UserReviews {
 
 class Fields {
   String food;
+  String foodImage;
   int user;
   int rating;
-  String comment;
-  DateTime timestamp;
+  String timestamp;
 
   Fields({
     required this.food,
+    required this.foodImage,
     required this.user,
     required this.rating,
-    required this.comment,
     required this.timestamp,
   });
 
   factory Fields.fromJson(Map<String, dynamic> json) => Fields(
         food: json["food"],
+        foodImage: json["food_image"],
         user: json["user"],
         rating: json["rating"],
-        comment: json["comment"],
-        timestamp: DateTime.parse(json["timestamp"]),
+        timestamp: json["timestamp"],
       );
 
   Map<String, dynamic> toJson() => {
         "food": food,
+        "food_image": foodImage,
         "user": user,
         "rating": rating,
-        "comment": comment,
-        "timestamp": timestamp.toIso8601String(),
+        "timestamp": timestamp,
       };
 }
