@@ -8,6 +8,8 @@ import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:jelajah_rasa_mobile/catalogue/screens/list_food.dart';
+import 'package:jelajah_rasa_mobile/report/screens/report_page.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
@@ -33,10 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
   // Daftar halaman untuk user yang sudah login
   List<Widget> _getAuthenticatedPages() => [
         HomePageContent(isAdmin: isAdmin),
-        PendingDishesScreen(),
+        const FoodPage(),
         const AddDish(),
         const ShowFavorite(),
         const AddDish(),
+        if (isAdmin) const ReportPage(),
       ];
 
   // Daftar halaman untuk user yang belum login
@@ -138,6 +141,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               label: "Add Dish",
             ),
+            if (isAdmin)
+              BottomNavigationBarItem(
+                backgroundColor: const Color(0xFFAB4A2F),
+                icon: Icon(
+                  _currentIndex == 5
+                      ? Icons.report
+                      : Icons.report_outlined,
+                ),
+                label: "Reports",
+              ),
           ]
         : [
             BottomNavigationBarItem(
@@ -435,15 +448,22 @@ class HomePageContent extends StatelessWidget {
           child: IconButton(
             icon: Icon(icon, color: Colors.white),
             onPressed: () {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(
-                    content: Text("Opening $label..."),
-                    duration: const Duration(seconds: 1),
-                  ),
+              if (label == 'Catalogue') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const FoodPage()),
                 );
-              onTap();
+              } else {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(
+                      content: Text("Opening $label..."),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                onTap();
+              }
             },
           ),
         ),
