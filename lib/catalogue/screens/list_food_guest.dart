@@ -4,14 +4,14 @@ import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
-class FoodPage extends StatefulWidget {
-  const FoodPage({super.key});
+class FoodPageGuest extends StatefulWidget {
+  const FoodPageGuest({super.key});
 
   @override
-  State<FoodPage> createState() => _FoodPageState();
+  State<FoodPageGuest> createState() => _FoodPageGuestState();
 }
 
-class _FoodPageState extends State<FoodPage> {
+class _FoodPageGuestState extends State<FoodPageGuest> {
   final _formKey = GlobalKey<FormState>();
   String _selectedIssueType = '';
   String _description = '';
@@ -40,161 +40,17 @@ class _FoodPageState extends State<FoodPage> {
     return listFood;
   }
 
-  Future<void> _reportFood(
-      BuildContext context, CookieRequest request, String foodId) async {
-    try {
-      final response = await request.post(
-        'http://127.0.0.1:8000/report/api/food/$foodId/report/',
-        jsonEncode({
-          'issue_type': _selectedIssueType,
-          'description': _description,
-        }),
-      );
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Food reported successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to report food: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showReportDialog(
-      BuildContext context, CookieRequest request, String foodId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Report Food'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Issue Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedIssueType.isEmpty ? null : _selectedIssueType,
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'quality', child: Text('Quality Issue')),
-                    DropdownMenuItem(
-                        value: 'incorrect_info',
-                        child: Text('Incorrect Information')),
-                    DropdownMenuItem(
-                        value: 'out_of_stock', child: Text('Out of Stock')),
-                    DropdownMenuItem(value: 'other', child: Text('Other')),
-                  ],
-                  onChanged: (String? value) {
-                    setState(() {
-                      _selectedIssueType = value ?? '';
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select an issue type';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 4,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a description';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _description = value ?? '';
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  Navigator.pop(context);
-                  _reportFood(context, request, foodId);
-                }
-              },
-              child: const Text('Submit Report'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showLoginPrompt(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Login Required'),
-          content: const Text('Please login to report issues with food items.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   List<Food> _filterAndSortFoods(List<Food> foods) {
     var filteredFoods = foods.where((food) {
       final searchTerm = _searchQuery.toLowerCase();
-      final matchesSearch =
-          food.fields.name.toLowerCase().contains(searchTerm) ||
-              food.fields.vendorName.toLowerCase().contains(searchTerm);
+      final matchesSearch = food.fields.name.toLowerCase().contains(searchTerm) ||
+             food.fields.vendorName.toLowerCase().contains(searchTerm);
 
       final matchesFlavor = _selectedFlavor == 'all' ||
-          food.fields.flavor.toString().toLowerCase().split('.').last ==
-              _selectedFlavor;
+             food.fields.flavor.toString().toLowerCase().split('.').last  == _selectedFlavor;
 
       final matchesCategory = _selectedCategory == 'all' ||
-          food.fields.category.toString().toLowerCase().split('.').last ==
-              _selectedCategory;
+             food.fields.category.toString().toLowerCase().split('.').last == _selectedCategory;
 
       return matchesSearch && matchesFlavor && matchesCategory;
     }).toList();
@@ -217,7 +73,6 @@ class _FoodPageState extends State<FoodPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    final bool isAuthenticated = request.loggedIn;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Food Catalogue'),
@@ -268,11 +123,9 @@ class _FoodPageState extends State<FoodPage> {
                         ),
                         value: _selectedCategory,
                         items: const [
-                          DropdownMenuItem(
-                              value: 'all', child: Text('All Categories')),
+                          DropdownMenuItem(value: 'all', child: Text('All Categories')),
                           DropdownMenuItem(value: 'food', child: Text('Food')),
-                          DropdownMenuItem(
-                              value: 'beverage', child: Text('Beverage')),
+                          DropdownMenuItem(value: 'beverage', child: Text('Beverage')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -291,12 +144,9 @@ class _FoodPageState extends State<FoodPage> {
                         ),
                         value: _selectedFlavor,
                         items: const [
-                          DropdownMenuItem(
-                              value: 'all', child: Text('All Flavors')),
-                          DropdownMenuItem(
-                              value: 'sweet', child: Text('Sweet')),
-                          DropdownMenuItem(
-                              value: 'salty', child: Text('Salty')),
+                          DropdownMenuItem(value: 'all', child: Text('All Flavors')),
+                          DropdownMenuItem(value: 'sweet', child: Text('Sweet')),
+                          DropdownMenuItem(value: 'salty', child: Text('Salty')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -319,11 +169,8 @@ class _FoodPageState extends State<FoodPage> {
                   value: _sortBy,
                   items: const [
                     DropdownMenuItem(value: 'name', child: Text('Name (A-Z)')),
-                    DropdownMenuItem(
-                        value: 'price_asc', child: Text('Price (Low to High)')),
-                    DropdownMenuItem(
-                        value: 'price_desc',
-                        child: Text('Price (High to Low)')),
+                    DropdownMenuItem(value: 'price_asc', child: Text('Price (Low to High)')),
+                    DropdownMenuItem(value: 'price_desc', child: Text('Price (High to Low)')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -341,8 +188,7 @@ class _FoodPageState extends State<FoodPage> {
               future: fetchFood(request),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final sortedAndFilteredFoods =
-                      _filterAndSortFoods(snapshot.data!);
+                  final sortedAndFilteredFoods = _filterAndSortFoods(snapshot.data!);
 
                   if (sortedAndFilteredFoods.isEmpty) {
                     return const Center(
@@ -353,8 +199,7 @@ class _FoodPageState extends State<FoodPage> {
                   return Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 0.7,
                         crossAxisSpacing: 16,
@@ -421,14 +266,10 @@ class _FoodPageState extends State<FoodPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          food.fields.category
-                                              .toString()
-                                              .split('.')
-                                              .last,
+                                          food.fields.category.toString().split('.').last,
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
@@ -436,30 +277,12 @@ class _FoodPageState extends State<FoodPage> {
                                           ),
                                         ),
                                         Text(
-                                          food.fields.flavor
-                                              .toString()
-                                              .split('.')
-                                              .last,
+                                          food.fields.flavor.toString().split('.').last,
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
                                             fontStyle: FontStyle.italic,
                                           ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.report_problem_outlined,
-                                            color: Colors.red,
-                                            size: 20,
-                                          ),
-                                          onPressed: () {
-                                            if (isAuthenticated) {
-                                              _showReportDialog(
-                                                  context, request, food.pk);
-                                            } else {
-                                              _showLoginPrompt(context);
-                                            }
-                                          },
                                         ),
                                       ],
                                     ),

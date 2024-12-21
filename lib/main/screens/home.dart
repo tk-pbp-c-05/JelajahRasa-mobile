@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/add_dish.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/request_status.dart';
 import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
+import 'package:jelajah_rasa_mobile/catalogue/screens/list_food_guest.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import '../widgets/food_card.dart';
 import '../widgets/navbar.dart';
@@ -17,7 +18,7 @@ class MyHomePage extends StatefulWidget {
 
   const MyHomePage({
     super.key,
-    this.isAuthenticated = true,
+    this.isAuthenticated = false,
     this.isAdmin = false,
   });
 
@@ -29,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0; // Variabel untuk menandakan halaman aktif
 
   // Simulasi status autentikasi dan role user
-  bool isAuthenticated = true; // Ganti ke true jika user sudah login
+  bool isAuthenticated = false; // Ganti ke true jika user sudah login
   bool isAdmin = false; // Ganti ke true jika user adalah staff/admin
 
   // Daftar halaman untuk user yang sudah login
@@ -45,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Daftar halaman untuk user yang belum login
   List<Widget> get _guestPages => [
         const HomePageContent(),
+        const FoodPageGuest(), // Add this line
       ];
 
   @override
