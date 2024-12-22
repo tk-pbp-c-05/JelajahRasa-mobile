@@ -4,7 +4,7 @@
 >https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/
 
 >**Link to APK:**
-> \<to be added\>
+>https://appcenter.ms/orgs/tk-pbp-c-05/apps/Jelajah-Rasa/build/connect
 
 ## 📑 Table of Contents 📑:
 
