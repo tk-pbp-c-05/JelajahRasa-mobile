@@ -1,6 +1,5 @@
-// update_review_page.dart
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/models/food.dart';
+import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:jelajah_rasa_mobile/review/models/review.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +7,7 @@ import 'dart:convert';
 
 class UpdateReviewPage extends StatefulWidget {
   final Food food;
-  final Review review;
+  final ReviewElement review;
 
   const UpdateReviewPage({
     Key? key,
@@ -33,34 +32,34 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
   }
 
   Future<void> _updateReview() async {
-      if (_formKey.currentState!.validate()) {
-          final request = context.read<CookieRequest>();
-          
-          final response = await request.postJson(
-            "https://localhost:8000/review/food/${widget.review.pk}/update-review-flutter/",
-            jsonEncode({
-                'comment': _commentController.text,
-                'rating': _rating.toString(),
-            }),
+    if (_formKey.currentState!.validate()) {
+      final request = context.read<CookieRequest>();
+      
+      final response = await request.postJson(
+        "http://127.0.0.1:8000/review/food/${widget.review.pk}/update-review-flutter/",
+        jsonEncode({
+          'comment': _commentController.text,
+          'rating': _rating.toString(),
+        }),
+      );
+      
+      if (context.mounted) {
+        if (response['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Review successfully updated!"),
+            ),
           );
-          
-          if (context.mounted) {
-              if (response['status'] == 'success') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Review successfully updated!"),
-                      ),
-                  );
-                  Navigator.pop(context); // Return to previous page
-              } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("An error occurred, please try again."),
-                      ),
-                  );
-              }
-          }
+          Navigator.pop(context); // Return to previous page
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("An error occurred, please try again."),
+            ),
+          );
+        }
       }
+    }
   }
 
   @override

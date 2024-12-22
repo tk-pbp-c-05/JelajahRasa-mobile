@@ -1,6 +1,6 @@
 // create_review_page.dart
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/models/food.dart';
+import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -24,7 +24,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
           final request = context.read<CookieRequest>();
           
           final response = await request.postJson(
-            "https://localhost:8000/review/food/${widget.food.pk}/create-review-flutter/",
+            "http://127.0.0.1:8000/review/food/${widget.food.pk}/create-review-flutter/",
             jsonEncode({
                 'comment': _commentController.text,
                 'rating': _rating.toString(),
@@ -40,14 +40,15 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                   );
                   Navigator.pop(context); // Return to previous page
               } else {
+                  String errorMessage = response['message'] ?? 'An error occurred.';
                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("An error occurred, please try again."),
+                      SnackBar(
+                          content: Text(errorMessage),
                       ),
                   );
               }
           }
-      }
+      } 
   }
 
   @override
