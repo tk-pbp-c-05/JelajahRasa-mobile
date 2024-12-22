@@ -19,7 +19,7 @@ class _CommentPageState extends State<CommentPage> {
   Future<Map<String, dynamic>> fetchCommentDetail(CookieRequest request) async {
     try {
       final response = await request.get(
-        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/api/comments/${widget.uuid}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/${widget.uuid}/',
       );
       return response['comment'];
     } catch (e) {
