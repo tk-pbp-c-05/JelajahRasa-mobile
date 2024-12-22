@@ -81,31 +81,33 @@ class Fields {
 }
 
 enum Category {
-    beverage,
-    food
+    BEVERAGE,
+    FOOD
 }
 
 final categoryValues = EnumValues({
-    "Beverage": Category.beverage,
-    "Food": Category.food
+    "Beverage": Category.BEVERAGE,
+    "Food": Category.FOOD
 });
 
 enum Flavor {
-    salty,
-    sweet
+    FLAVOR_SALTY,
+    SALTY,
+    SWEET
 }
 
 final flavorValues = EnumValues({
-    "Salty": Flavor.salty,
-    "Sweet": Flavor.sweet
+    "Salty": Flavor.FLAVOR_SALTY,
+    "Salty ": Flavor.SALTY,
+    "Sweet": Flavor.SWEET
 });
 
 enum Model {
-    mainFood
+    MAIN_FOOD
 }
 
 final modelValues = EnumValues({
-    "main.food": Model.mainFood
+    "main.food": Model.MAIN_FOOD
 });
 
 class EnumValues<T> {
