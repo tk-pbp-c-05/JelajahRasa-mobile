@@ -19,7 +19,7 @@ class _CommentPageState extends State<CommentPage> {
   Future<Map<String, dynamic>> fetchCommentDetail(CookieRequest request) async {
     try {
       final response = await request.get(
-        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/${widget.uuid}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/api/comments/${widget.uuid}/',
       );
       return response['comment'];
     } catch (e) {
@@ -195,6 +195,9 @@ class _CommentPageState extends State<CommentPage> {
 
                                   if (result == true && mounted) {
                                     _refreshComment();
+                                    if (context.mounted) {
+                                      Navigator.pop(context, true);
+                                    }
                                   }
                                 },
                                 style: TextButton.styleFrom(
@@ -365,6 +368,12 @@ class _CommentPageState extends State<CommentPage> {
           );
           if (result == true) {
             _refreshComment();
+            if (context.mounted) {
+              Navigator.pop(context, {
+                'refresh': true,
+                'edited_uuid': comment['uuid'],
+              });
+            }
           }
         } else if (value == 'delete') {
           final confirm = await showDialog<bool>(
@@ -394,7 +403,9 @@ class _CommentPageState extends State<CommentPage> {
               );
               if (context.mounted) {
                 if (response['status'] == 'success') {
-                  Navigator.pop(context); // Go back to community page
+                  if (context.mounted) {
+                    Navigator.pop(context, true);
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(response['message'])),
@@ -464,6 +475,9 @@ class _CommentPageState extends State<CommentPage> {
               if (context.mounted) {
                 if (response['status'] == 'success') {
                   _refreshComment();
+                  if (context.mounted) {
+                    Navigator.pop(context, true);
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(response['message'])),
