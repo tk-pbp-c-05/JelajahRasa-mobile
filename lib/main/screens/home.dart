@@ -12,6 +12,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:jelajah_rasa_mobile/catalogue/screens/list_food.dart';
 import 'package:jelajah_rasa_mobile/report/screens/report_page.dart';
 import 'package:jelajah_rasa_mobile/profile-daffa/screens/profile.dart';
+import 'package:jelajah_rasa_mobile/community/screens/community_page.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
@@ -38,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _getAuthenticatedPages() => [
         HomePageContent(isAdmin: isAdmin),
         const FoodPage(),
+        const CommunityPage(),
         const AddDish(),
         const ShowFavorite(),
         const AddDish(),
@@ -155,9 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
               BottomNavigationBarItem(
                 backgroundColor: const Color(0xFFAB4A2F),
                 icon: Icon(
-                  _currentIndex == 5
-                      ? Icons.report
-                      : Icons.report_outlined,
+                  _currentIndex == 5 ? Icons.report : Icons.report_outlined,
                 ),
                 label: "Reports",
               ),
