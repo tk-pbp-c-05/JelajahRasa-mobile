@@ -24,61 +24,23 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    try {
-      final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
 
-      print("API Response Type: ${response.runtimeType}");
+    print("API Response Type: ${response.runtimeType}");
 
-      if (response == null) {
-        throw Exception('Response is null');
-      }
-
-      List<Food> listFood = [];
-
-      if (response is List) {
-        for (var d in response) {
-          try {
-            if (d != null) {
-              print("\n--- Processing Food Item ---");
-              print("Raw data: $d");
-              print("Fields data: ${d['fields']}");
-
-              final fields = d['fields'];
-              if (fields != null) {
-                print("Name: ${fields['name']}");
-                print("Flavor: ${fields['flavor']}");
-                print("Category: ${fields['category']}");
-                print("Price: ${fields['price']}");
-                print("Vendor: ${fields['vendor_name']}");
-                print("Image: ${fields['image']}");
-                print("Rating Count: ${fields['rating_count']}");
-                print("Average Rating: ${fields['average_rating']}");
-              } else {
-                print("Fields is null!");
-              }
-
-              Food food = Food.fromJson(d);
-              listFood.add(food);
-            }
-          } catch (e, stackTrace) {
-            print("\n--- Error Details ---");
-            print("Error type: ${e.runtimeType}");
-            print("Error message: $e");
-            print("Stack trace: $stackTrace");
-            print("Problematic data structure: ${d.runtimeType}");
-            print("Problematic data: $d");
-          }
-        }
-      } else {
-        throw Exception('Response is not a List: ${response.runtimeType}');
-      }
-
-      return listFood;
-    } catch (e, stackTrace) {
-      print("Error fetching food: $e");
-      print("Stack trace: $stackTrace");
-      throw Exception('Failed to fetch food: $e');
+    if (response == null) {
+      throw Exception('Response is null');
     }
+
+    List<Food> listFood = [];
+
+    if (response is List) {
+      for (var d in response) {
+        Food food = Food.fromJson(d);
+        listFood.add(food);
+      }
+    }
+    return listFood;
   }
 
   List<Food> _filterAndSortFoods(List<Food> foods) {
