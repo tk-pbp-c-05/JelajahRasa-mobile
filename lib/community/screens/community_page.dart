@@ -3,6 +3,7 @@ import 'package:jelajah_rasa_mobile/community/models/comment.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:jelajah_rasa_mobile/community/screens/comment_page.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -61,22 +62,22 @@ class _CommunityPageState extends State<CommunityPage> {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'JelajahRasa Community',
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFE1A85F),
                     ),
                   ),
                   SizedBox(height: 4),
                   Text(
                     "Hear what people has to say about Malang's Culinaries",
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
+                      fontSize: 16,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -107,13 +108,12 @@ class _CommunityPageState extends State<CommunityPage> {
               final comment = snapshot.data![index];
               return GestureDetector(
                 onTap: () {
-                  // Navigate to comment detail page using uuid
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => CommentDetailPage(uuid: comment.uuid),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CommentPage(uuid: comment.uuid),
+                    ),
+                  );
                 },
                 child: Card(
                   margin: const EdgeInsets.only(bottom: 16),

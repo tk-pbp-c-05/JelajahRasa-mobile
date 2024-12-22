@@ -42,7 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
         const CommunityPage(),
         const AddDish(),
         const ShowFavorite(),
-        const AddDish(),
         if (isAdmin) const ReportPage(),
       ];
 
@@ -72,12 +71,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     )));
         break;
       case 'Check New Dish':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => PendingDishesScreen()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const PendingDishesScreen()));
         break;
       case 'Request Status':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => RequestStatusScreen()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const RequestStatusScreen()));
         break;
       case 'Logout':
         final request = context.read<CookieRequest>();
@@ -575,26 +578,26 @@ class HomePageContent extends StatelessWidget {
                             ),
                           ),
                           const Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Bakso Malang',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.star,
                                       size: 16,
                                       color: Colors.amber,
                                     ),
-                                    const Text(' 4.8'),
-                                    const Text(' (5 Reviews)'),
+                                    Text(' 4.8'),
+                                    Text(' (5 Reviews)'),
                                   ],
                                 ),
                               ],
