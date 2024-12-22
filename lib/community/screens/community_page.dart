@@ -165,7 +165,7 @@ class _CommunityPageState extends State<CommunityPage> {
                               const Icon(Icons.person),
                         ),
                         title: Text(
-                          comment.username,
+                          comment.firstName,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text('@${comment.username.toLowerCase()}'),

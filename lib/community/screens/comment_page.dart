@@ -87,7 +87,7 @@ class _CommentPageState extends State<CommentPage> {
                                   const Icon(Icons.person),
                             ),
                             title: Text(
-                              comment['username'],
+                              comment['first_name'],
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -274,7 +274,7 @@ class _CommentPageState extends State<CommentPage> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      reply['username'],
+                                                      reply['first_name'],
                                                       style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
