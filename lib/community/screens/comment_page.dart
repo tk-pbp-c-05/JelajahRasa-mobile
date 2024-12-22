@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:jelajah_rasa_mobile/community/screens/create_reply.dart';
+import 'package:jelajah_rasa_mobile/community/screens/edit_comment.dart';
 
 class CommentPage extends StatefulWidget {
   final String uuid;
@@ -13,6 +14,8 @@ class CommentPage extends StatefulWidget {
 }
 
 class _CommentPageState extends State<CommentPage> {
+  Key _futureBuilderKey = UniqueKey();
+
   Future<Map<String, dynamic>> fetchCommentDetail(CookieRequest request) async {
     try {
       final response = await request.get(
@@ -22,6 +25,12 @@ class _CommentPageState extends State<CommentPage> {
     } catch (e) {
       throw Exception('Failed to fetch comment: $e');
     }
+  }
+
+  void _refreshComment() {
+    setState(() {
+      _futureBuilderKey = UniqueKey();
+    });
   }
 
   @override
@@ -42,6 +51,7 @@ class _CommentPageState extends State<CommentPage> {
         elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
+        key: _futureBuilderKey,
         future: fetchCommentDetail(request),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -78,12 +88,14 @@ class _CommentPageState extends State<CommentPage> {
                                   const Icon(Icons.person),
                             ),
                             title: Text(
-                              comment['username'],
+                              comment['first_name'],
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle:
                                 Text('@${comment['username'].toLowerCase()}'),
+                            trailing:
+                                _buildCommentMenu(context, comment, request),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -165,8 +177,25 @@ class _CommentPageState extends State<CommentPage> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  // Add reply functionality
+                                onPressed: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateReplyScreen(
+                                        commentUuid: comment['uuid'],
+                                        username: comment['username'],
+                                        userImage: comment['user_image'],
+                                        content: comment['content'],
+                                        food: comment['food'] != 'No food'
+                                            ? comment['food']
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+
+                                  if (result == true && mounted) {
+                                    _refreshComment();
+                                  }
                                 },
                                 style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFFAB4A2F),
@@ -205,21 +234,88 @@ class _CommentPageState extends State<CommentPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
-                                                const CircleAvatar(
-                                                  child: Icon(Icons.person),
+                                                Row(
+                                                  children: [
+                                                    FutureBuilder(
+                                                      future: request.get(
+                                                        'http://127.0.0.1:8000/profile/api/user-profile/${reply['username']}/',
+                                                      ),
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return const CircleAvatar(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          );
+                                                        }
+
+                                                        if (snapshot.hasError ||
+                                                            !snapshot.hasData) {
+                                                          return const CircleAvatar(
+                                                            child: Icon(
+                                                                Icons.person),
+                                                          );
+                                                        }
+
+                                                        final userProfile =
+                                                            snapshot.data![
+                                                                'user_profile'];
+                                                        return CircleAvatar(
+                                                          backgroundImage:
+                                                              NetworkImage(userProfile[
+                                                                      'image_url'] ??
+                                                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png'),
+                                                          onBackgroundImageError:
+                                                              (e, s) =>
+                                                                  const Icon(Icons
+                                                                      .person),
+                                                        );
+                                                      },
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          reply['first_name'],
+                                                          style:
+                                                              const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          '@${reply['username'].toLowerCase()}',
+                                                          style: TextStyle(
+                                                            color: Colors
+                                                                .grey[600],
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 12),
-                                                Text(
-                                                  reply['username'],
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                                _buildReplyMenu(
+                                                    context, reply, request),
                                               ],
                                             ),
-                                            const SizedBox(height: 8),
-                                            Text(reply['content']),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              reply['content'],
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
                                             const SizedBox(height: 8),
                                             Text(
                                               reply['created_at'],
@@ -243,6 +339,153 @@ class _CommentPageState extends State<CommentPage> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCommentMenu(BuildContext context, Map<String, dynamic> comment,
+      CookieRequest request) {
+    final isOwner = comment['username'] == request.jsonData['username'];
+    final isAdmin = request.jsonData['is_admin'] ?? false;
+
+    if (!isOwner && !isAdmin) return const SizedBox.shrink();
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (value) async {
+        if (value == 'edit' && isOwner) {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditCommentScreen(
+                uuid: comment['uuid'],
+                content: comment['content'],
+                food: comment['food'],
+              ),
+            ),
+          );
+          if (result == true) {
+            _refreshComment();
+          }
+        } else if (value == 'delete') {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Comment'),
+              content:
+                  const Text('Are you sure you want to delete this comment?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true) {
+            try {
+              final response = await request.post(
+                'http://127.0.0.1:8000/community/api/delete-comment/${comment['uuid']}/',
+                {},
+              );
+              if (context.mounted) {
+                if (response['status'] == 'success') {
+                  Navigator.pop(context); // Go back to community page
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(response['message'])),
+                  );
+                }
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error deleting comment')),
+                );
+              }
+            }
+          }
+        }
+      },
+      itemBuilder: (context) => [
+        if (isOwner)
+          const PopupMenuItem(
+            value: 'edit',
+            child: Text('Edit'),
+          ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Text('Delete'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReplyMenu(
+      BuildContext context, Map<String, dynamic> reply, CookieRequest request) {
+    final isOwner = reply['username'] == request.jsonData['username'];
+    final isAdmin = request.jsonData['is_admin'] ?? false;
+
+    if (!isOwner && !isAdmin) return const SizedBox.shrink();
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (value) async {
+        if (value == 'delete') {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Reply'),
+              content:
+                  const Text('Are you sure you want to delete this reply?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true) {
+            try {
+              final response = await request.post(
+                'http://127.0.0.1:8000/community/api/delete-reply/${reply['uuid']}/',
+                {},
+              );
+              if (context.mounted) {
+                if (response['status'] == 'success') {
+                  _refreshComment();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(response['message'])),
+                  );
+                }
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error deleting reply')),
+                );
+              }
+            }
+          }
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'delete',
+          child: Text('Delete'),
+        ),
+      ],
     );
   }
 }

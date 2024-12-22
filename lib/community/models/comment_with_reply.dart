@@ -1,24 +1,24 @@
 // To parse this JSON data, do
 //
-//     final commentWithReplies = commentWithRepliesFromJson(jsonString);
+//     final commentWithReply = commentWithReplyFromJson(jsonString);
 
 import 'dart:convert';
 
-CommentWithReplies commentWithRepliesFromJson(String str) =>
-    CommentWithReplies.fromJson(json.decode(str));
+CommentWithReply commentWithReplyFromJson(String str) =>
+    CommentWithReply.fromJson(json.decode(str));
 
-String commentWithRepliesToJson(CommentWithReplies data) =>
+String commentWithReplyToJson(CommentWithReply data) =>
     json.encode(data.toJson());
 
-class CommentWithReplies {
+class CommentWithReply {
   Comment comment;
 
-  CommentWithReplies({
+  CommentWithReply({
     required this.comment,
   });
 
-  factory CommentWithReplies.fromJson(Map<String, dynamic> json) =>
-      CommentWithReplies(
+  factory CommentWithReply.fromJson(Map<String, dynamic> json) =>
+      CommentWithReply(
         comment: Comment.fromJson(json["comment"]),
       );
 
@@ -30,17 +30,19 @@ class CommentWithReplies {
 class Comment {
   String uuid;
   String username;
+  String firstName;
   String userImage;
   String content;
   String createdAt;
   String updatedAt;
-  dynamic food;
+  Food food;
   List<Reply> replies;
   int repliesCount;
 
   Comment({
     required this.uuid,
     required this.username,
+    required this.firstName,
     required this.userImage,
     required this.content,
     required this.createdAt,
@@ -53,11 +55,12 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) => Comment(
         uuid: json["uuid"],
         username: json["username"],
+        firstName: json["first_name"],
         userImage: json["user_image"],
         content: json["content"],
         createdAt: json["created_at"],
         updatedAt: json["updated_at"],
-        food: json["food"],
+        food: Food.fromJson(json["food"]),
         replies:
             List<Reply>.from(json["replies"].map((x) => Reply.fromJson(x))),
         repliesCount: json["replies_count"],
@@ -66,25 +69,54 @@ class Comment {
   Map<String, dynamic> toJson() => {
         "uuid": uuid,
         "username": username,
+        "first_name": firstName,
         "user_image": userImage,
         "content": content,
         "created_at": createdAt,
         "updated_at": updatedAt,
-        "food": food,
+        "food": food.toJson(),
         "replies": List<dynamic>.from(replies.map((x) => x.toJson())),
         "replies_count": repliesCount,
+      };
+}
+
+class Food {
+  String uuid;
+  String name;
+  String image;
+
+  Food({
+    required this.uuid,
+    required this.name,
+    required this.image,
+  });
+
+  factory Food.fromJson(Map<String, dynamic> json) => Food(
+        uuid: json["uuid"],
+        name: json["name"],
+        image: json["image"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "uuid": uuid,
+        "name": name,
+        "image": image,
       };
 }
 
 class Reply {
   String uuid;
   String username;
+  String firstName;
+  String? userImage;
   String content;
   String createdAt;
 
   Reply({
     required this.uuid,
     required this.username,
+    required this.firstName,
+    required this.userImage,
     required this.content,
     required this.createdAt,
   });
@@ -92,6 +124,8 @@ class Reply {
   factory Reply.fromJson(Map<String, dynamic> json) => Reply(
         uuid: json["uuid"],
         username: json["username"],
+        firstName: json["first_name"],
+        userImage: json["user_image"],
         content: json["content"],
         createdAt: json["created_at"],
       );
@@ -99,6 +133,8 @@ class Reply {
   Map<String, dynamic> toJson() => {
         "uuid": uuid,
         "username": username,
+        "first_name": firstName,
+        "user_image": userImage,
         "content": content,
         "created_at": createdAt,
       };

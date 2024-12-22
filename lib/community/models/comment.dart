@@ -28,6 +28,7 @@ class Comment {
 class CommentElement {
   String uuid;
   String username;
+  String firstName;
   String userImage;
   String content;
   String createdAt;
@@ -38,6 +39,7 @@ class CommentElement {
   CommentElement({
     required this.uuid,
     required this.username,
+    required this.firstName,
     required this.userImage,
     required this.content,
     required this.createdAt,
@@ -49,6 +51,7 @@ class CommentElement {
   factory CommentElement.fromJson(Map<String, dynamic> json) => CommentElement(
         uuid: json["uuid"],
         username: json["username"],
+        firstName: json["first_name"],
         userImage: json["user_image"],
         content: json["content"],
         createdAt: json["created_at"],
@@ -60,6 +63,7 @@ class CommentElement {
   Map<String, dynamic> toJson() => {
         "uuid": uuid,
         "username": username,
+        "first_name": firstName,
         "user_image": userImage,
         "content": content,
         "created_at": createdAt,
