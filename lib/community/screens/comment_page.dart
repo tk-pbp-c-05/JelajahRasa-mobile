@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:jelajah_rasa_mobile/community/screens/create_reply.dart';
 
 class CommentPage extends StatefulWidget {
   final String uuid;
@@ -13,6 +13,8 @@ class CommentPage extends StatefulWidget {
 }
 
 class _CommentPageState extends State<CommentPage> {
+  Key _futureBuilderKey = UniqueKey();
+
   Future<Map<String, dynamic>> fetchCommentDetail(CookieRequest request) async {
     try {
       final response = await request.get(
@@ -22,6 +24,12 @@ class _CommentPageState extends State<CommentPage> {
     } catch (e) {
       throw Exception('Failed to fetch comment: $e');
     }
+  }
+
+  void _refreshComment() {
+    setState(() {
+      _futureBuilderKey = UniqueKey();
+    });
   }
 
   @override
@@ -42,6 +50,7 @@ class _CommentPageState extends State<CommentPage> {
         elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
+        key: _futureBuilderKey,
         future: fetchCommentDetail(request),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -165,8 +174,25 @@ class _CommentPageState extends State<CommentPage> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  // Add reply functionality
+                                onPressed: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateReplyScreen(
+                                        commentUuid: comment['uuid'],
+                                        username: comment['username'],
+                                        userImage: comment['user_image'],
+                                        content: comment['content'],
+                                        food: comment['food'] != 'No food'
+                                            ? comment['food']
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+
+                                  if (result == true && mounted) {
+                                    _refreshComment();
+                                  }
                                 },
                                 style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFFAB4A2F),
@@ -206,15 +232,62 @@ class _CommentPageState extends State<CommentPage> {
                                           children: [
                                             Row(
                                               children: [
-                                                const CircleAvatar(
-                                                  child: Icon(Icons.person),
+                                                FutureBuilder(
+                                                  future: request.get(
+                                                    'http://127.0.0.1:8000/profile/api/user-profile/${reply['username']}/',
+                                                  ),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return const CircleAvatar(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      );
+                                                    }
+
+                                                    if (snapshot.hasError ||
+                                                        !snapshot.hasData) {
+                                                      return const CircleAvatar(
+                                                        child:
+                                                            Icon(Icons.person),
+                                                      );
+                                                    }
+
+                                                    final userProfile = snapshot
+                                                        .data!['user_profile'];
+                                                    return CircleAvatar(
+                                                      backgroundImage:
+                                                          NetworkImage(userProfile[
+                                                                  'image_url'] ??
+                                                              'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png'),
+                                                      onBackgroundImageError:
+                                                          (e, s) => const Icon(
+                                                              Icons.person),
+                                                    );
+                                                  },
                                                 ),
                                                 const SizedBox(width: 12),
-                                                Text(
-                                                  reply['username'],
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      reply['username'],
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '@${reply['username'].toLowerCase()}',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             ),

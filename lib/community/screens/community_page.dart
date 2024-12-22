@@ -4,6 +4,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:jelajah_rasa_mobile/community/screens/comment_page.dart';
+import 'package:jelajah_rasa_mobile/community/screens/create_comment.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -205,6 +206,28 @@ class _CommunityPageState extends State<CommunityPage> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFAB4A2F),
+        onPressed: () async {
+          if (!request.loggedIn) {
+            Navigator.pushNamed(context, '/login');
+            return;
+          }
+
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateCommentScreen(),
+            ),
+          );
+
+          if (result == true) {
+            // Refresh comments list
+            setState(() {});
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
