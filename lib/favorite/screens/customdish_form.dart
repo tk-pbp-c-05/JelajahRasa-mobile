@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:jelajah_rasa_mobile/main/screens/home.dart';
 
 class CustomDishFormPage extends StatefulWidget {
   const CustomDishFormPage({super.key});
@@ -260,7 +261,12 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                           //   MaterialPageRoute(
                           //       builder: (context) => const ShowFavorite()),
                           // );
-                          Navigator.pop(context);
+                          //Navigator.pop(context);
+                           Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MyHomePage(isAuthenticated: true,
+                              isAdmin: false)),
+                          );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

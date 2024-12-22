@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:jelajah_rasa_mobile/main/screens/home.dart';
 
 class SelectFromMenuFormPage extends StatefulWidget {
   const SelectFromMenuFormPage({super.key});
@@ -129,9 +130,14 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
 
                       // Navigator.pushReplacement(
                       //   context,
-                      //   MaterialPageRoute(builder: (context) => const ShowFavorite()),
-                      // )
-                      Navigator.pop(context);
+                      //   MaterialPageRoute(builder: (context) => const MyHomePage(isAuthenticated: true)),
+                      // );
+                      Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MyHomePage(isAuthenticated: true,
+                              isAdmin: false)),
+                          );
+                      //Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
