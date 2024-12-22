@@ -40,8 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
         HomePageContent(isAdmin: isAdmin),
         const FoodPage(),
         const CommunityPage(),
-        const AddDish(),
         const ShowFavorite(),
+        const AddDish(),
         if (isAdmin) const ReportPage(),
       ];
 
