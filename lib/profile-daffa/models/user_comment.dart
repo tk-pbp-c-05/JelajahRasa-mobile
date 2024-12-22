@@ -40,6 +40,8 @@ class Fields {
   DateTime createdAt;
   DateTime updatedAt;
   String food;
+  String foodImage;
+  int replies;
 
   Fields({
     required this.user,
@@ -47,6 +49,8 @@ class Fields {
     required this.createdAt,
     required this.updatedAt,
     required this.food,
+    required this.foodImage,
+    required this.replies,
   });
 
   factory Fields.fromJson(Map<String, dynamic> json) => Fields(
@@ -55,6 +59,8 @@ class Fields {
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         food: json["food"],
+        foodImage: json["food_image"],
+        replies: json["replies"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -63,5 +69,7 @@ class Fields {
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
         "food": food,
+        "food_image": foodImage,
+        "replies": replies,
       };
 }

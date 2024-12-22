@@ -51,7 +51,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CircleAvatar(
                 radius: 50,
@@ -199,7 +198,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     }
                   },
                   child: const Text(
-                    "Save Changes",
+                    "Save",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
