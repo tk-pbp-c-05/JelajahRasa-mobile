@@ -30,11 +30,14 @@ class _FoodPageState extends State<FoodPage> {
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/catalog/json/');
-    var data = response;
     List<Food> listFood = [];
-    for (var d in data) {
-      if (d != null) {
-        listFood.add(Food.fromJson(d));
+
+    if (response is List) {
+      for (var d in response) {
+        if (d != null) {
+          Food food = Food.fromJson(d);
+          listFood.add(food);
+        }
       }
     }
     return listFood;
@@ -189,12 +192,10 @@ class _FoodPageState extends State<FoodPage> {
               food.fields.vendorName.toLowerCase().contains(searchTerm);
 
       final matchesFlavor = _selectedFlavor == 'all' ||
-          food.fields.flavor.toString().toLowerCase().split('.').last ==
-              _selectedFlavor;
+          flavorValues.reverse[food.fields.flavor] == _selectedFlavor;
 
       final matchesCategory = _selectedCategory == 'all' ||
-          food.fields.category.toString().toLowerCase().split('.').last ==
-              _selectedCategory;
+          categoryValues.reverse[food.fields.category] == _selectedCategory;
 
       return matchesSearch && matchesFlavor && matchesCategory;
     }).toList();
@@ -270,9 +271,10 @@ class _FoodPageState extends State<FoodPage> {
                         items: const [
                           DropdownMenuItem(
                               value: 'all', child: Text('All Categories')),
-                          DropdownMenuItem(value: 'food', child: Text('Food')),
                           DropdownMenuItem(
-                              value: 'beverage', child: Text('Beverage')),
+                              value: 'Makanan', child: Text('Makanan')),
+                          DropdownMenuItem(
+                              value: 'Minuman', child: Text('Minuman')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -293,10 +295,11 @@ class _FoodPageState extends State<FoodPage> {
                         items: const [
                           DropdownMenuItem(
                               value: 'all', child: Text('All Flavors')),
+                          DropdownMenuItem(value: 'asin', child: Text('Asin')),
                           DropdownMenuItem(
-                              value: 'sweet', child: Text('Sweet')),
+                              value: 'asin ', child: Text('Asin ')),
                           DropdownMenuItem(
-                              value: 'salty', child: Text('Salty')),
+                              value: 'manis', child: Text('Manis')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -383,8 +386,49 @@ class _FoodPageState extends State<FoodPage> {
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       height: 120,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.broken_image),
+                                      width: double.infinity,
+                                      color: Colors.grey[200],
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.restaurant,
+                                            size: 32,
+                                            color: Colors.grey[400],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Image not available',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      height: 120,
+                                      width: double.infinity,
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                          color: const Color(0xFFAB4A2F),
+                                        ),
+                                      ),
                                     );
                                   },
                                 ),
