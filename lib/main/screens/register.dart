@@ -246,7 +246,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         return;
                       }
 
-                      final response = await request.postJson(
+                      final response = await request.post(
                         "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/auth/register/",
                         jsonEncode({
                           "username": username,

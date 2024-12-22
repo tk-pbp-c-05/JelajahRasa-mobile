@@ -4,22 +4,66 @@
 
 import 'dart:convert';
 
-List<Review> reviewFromJson(String str) => List<Review>.from(json.decode(str).map((x) => Review.fromJson(x)));
+Review reviewFromJson(String str) => Review.fromJson(json.decode(str));
 
-String reviewToJson(List<Review> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String reviewToJson(Review data) => json.encode(data.toJson());
 
 class Review {
+    CurrentUser currentUser;
+    List<ReviewElement> reviews;
+
+    Review({
+        required this.currentUser,
+        required this.reviews,
+    });
+
+    factory Review.fromJson(Map<String, dynamic> json) => Review(
+        currentUser: CurrentUser.fromJson(json["current_user"]),
+        reviews: List<ReviewElement>.from(json["reviews"].map((x) => ReviewElement.fromJson(x))),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "current_user": currentUser.toJson(),
+        "reviews": List<dynamic>.from(reviews.map((x) => x.toJson())),
+    };
+}
+
+class CurrentUser {
+    String username;
+    bool isAdmin;
+    bool isGuest;
+
+    CurrentUser({
+        required this.username,
+        required this.isAdmin,
+        required this.isGuest,
+    });
+
+    factory CurrentUser.fromJson(Map<String, dynamic> json) => CurrentUser(
+        username: json["username"],
+        isAdmin: json["is_admin"],
+        isGuest: json["is_guest"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "username": username,
+        "is_admin": isAdmin,
+        "is_guest": isGuest,
+    };
+}
+
+class ReviewElement {
     String model;
     String pk;
     Fields fields;
 
-    Review({
+    ReviewElement({
         required this.model,
         required this.pk,
         required this.fields,
     });
 
-    factory Review.fromJson(Map<String, dynamic> json) => Review(
+    factory ReviewElement.fromJson(Map<String, dynamic> json) => ReviewElement(
         model: json["model"],
         pk: json["pk"],
         fields: Fields.fromJson(json["fields"]),
@@ -34,7 +78,7 @@ class Review {
 
 class Fields {
     String food;
-    int user;
+    String user;
     int rating;
     String comment;
     DateTime timestamp;

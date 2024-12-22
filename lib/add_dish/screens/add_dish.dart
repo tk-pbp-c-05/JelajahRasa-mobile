@@ -190,10 +190,21 @@ class _AddDishState extends State<AddDish> {
                   // Tombol Cancel
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => Navigator.push(
+                      onPressed: () {
+                        final request = context.read<CookieRequest>();
+                        final bool isAuthenticated = request.loggedIn;
+                        final bool isAdmin = request.jsonData['is_admin'] ?? false;
+
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const MyHomePage())),
+                            builder: (context) => MyHomePage(
+                              isAuthenticated: isAuthenticated,
+                              isAdmin: isAdmin,
+                            ),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFAB4A2F),
                         padding: const EdgeInsets.symmetric(vertical: 16),

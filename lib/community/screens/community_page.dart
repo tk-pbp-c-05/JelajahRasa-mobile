@@ -65,25 +65,30 @@ class _CommunityPageState extends State<CommunityPage> {
           backgroundColor: const Color(0xFFAB4A2F),
           flexibleSpace: SafeArea(
             child: Container(
-              padding: const EdgeInsets.all(16),
-              child: const Column(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'JelajahRasa Community',
                     style: TextStyle(
-                      fontSize: 30,
+                      fontSize: 28,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFFE1A85F),
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: 4),
+                  const Text(
                     "Hear what people has to say about Malang's Culinaries",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.white,
                     ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

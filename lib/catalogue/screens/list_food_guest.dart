@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
+import 'package:jelajah_rasa_mobile/review/screens/review_page.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -75,6 +76,15 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
     }
 
     return filteredFoods;
+  }
+
+  void _navigateToReview(Food food) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FoodReviewPage(food: food),
+      ),
+    );
   }
 
   @override
@@ -366,6 +376,19 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
                                       ),
                                     ),
                                   ],
+                                ),
+                                const SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      _navigateToReview(food);
+                                    },
+                                    child: const Text(
+                                      'Review',
+                                      style: TextStyle(color: Color(0xFFAB4A2F)),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),

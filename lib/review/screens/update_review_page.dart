@@ -1,6 +1,5 @@
-// update_review_page.dart
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/models/food.dart';
+import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:jelajah_rasa_mobile/review/models/review.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +7,7 @@ import 'dart:convert';
 
 class UpdateReviewPage extends StatefulWidget {
   final Food food;
-  final Review review;
+  final ReviewElement review;
 
   const UpdateReviewPage({
     super.key,
@@ -36,15 +35,14 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
   Future<void> _updateReview() async {
     if (_formKey.currentState!.validate()) {
       final request = context.read<CookieRequest>();
-
-      final response = await request.postJson(
+      final response = await request.post(
         "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.review.pk}/update-review-flutter/",
-        jsonEncode({
-          'comment': _commentController.text,
+        {
+          'comment': _commentController.text, // Directly passing parameters
           'rating': _rating.toString(),
-        }),
+        }
       );
-
+      
       if (context.mounted) {
         if (response['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -138,3 +136,4 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
     );
   }
 }
+

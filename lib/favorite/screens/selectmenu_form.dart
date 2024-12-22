@@ -126,11 +126,12 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                           content: Text("Favorite Dish successfully saved!"),
                         ),
                       );
+
                       // Navigator.pushReplacement(
                       //   context,
                       //   MaterialPageRoute(builder: (context) => const ShowFavorite()),
-                      // );
-                       Navigator.pop(context);
+                      // )
+                      Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

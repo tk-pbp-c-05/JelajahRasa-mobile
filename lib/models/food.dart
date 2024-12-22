@@ -40,7 +40,7 @@ class Fields {
   String address;
   String image;
   int ratingCount;
-  int averageRating;
+  double averageRating;
 
   Fields({
     required this.name,

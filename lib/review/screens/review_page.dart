@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:jelajah_rasa_mobile/models/food.dart';
+import 'package:intl/intl.dart';
+import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
+import 'package:jelajah_rasa_mobile/main/screens/login.dart';
 import 'package:jelajah_rasa_mobile/review/screens/create_review_page.dart';
 import 'package:jelajah_rasa_mobile/review/screens/update_review_page.dart';
 import 'package:jelajah_rasa_mobile/review/models/review.dart';
@@ -13,128 +15,198 @@ import 'dart:convert';
 class FoodReviewPage extends StatefulWidget {
   final Food food;
 
-  const FoodReviewPage({super.key, required this.food});
+  const FoodReviewPage({Key? key, required this.food}) : super(key: key);
 
   @override
   _FoodReviewPageState createState() => _FoodReviewPageState();
 }
 
 class _FoodReviewPageState extends State<FoodReviewPage> {
-  late Future<List<Review>> _reviewsFuture;
+  late Future<Review> _reviewsFuture;
+  late Food _currentFood;
 
   @override
   void initState() {
     super.initState();
-    _fetchReviews();
+    _currentFood = widget.food;
+    _reviewsFuture = _fetchReviews();
   }
 
-  Future<void> _fetchReviews() async {
+  Future<Food> _fetchUpdatedFood() async {
     final request = context.read<CookieRequest>();
     try {
       final response = await request.get(
-          'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/');
-      setState(() {
-        _reviewsFuture = Future.value(reviewFromJson(jsonEncode(response)));
-      });
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/${widget.food.pk}/json/'
+      );
+      return Food.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to load food data: $e');
+    }
+  }
+
+  Future<Review> _fetchReviews() async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/json/'
+      );
+      return reviewFromJson(jsonEncode(response));
     } catch (e) {
       throw Exception('Failed to load reviews: $e');
     }
   }
+  
+  Future<void> _refreshData() async {
+    if (!mounted) return;
 
-  Future<void> _deleteReview(String reviewId) async {
-    final request = context.read<CookieRequest>();
+    try {
+      final updatedFood = await _fetchUpdatedFood();
+      final updatedReviews = await _fetchReviews();
+      
+      if (!mounted) return;
 
-    final response = await request.postJson(
-      "https://localhost:8000/review/food/$reviewId/delete-review-flutter/",
-      jsonEncode({}), // Empty body for delete
-    );
-
-    if (context.mounted) {
-      if (response['status'] == 'success') {
+      setState(() {
+        _currentFood = updatedFood;
+        _reviewsFuture = Future.value(updatedReviews);
+      });
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Review successfully deleted!"),
-          ),
-        );
-        _fetchReviews(); // Refresh the reviews
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("An error occurred, please try again."),
-          ),
+          SnackBar(content: Text('Error refreshing data: $e')),
         );
       }
     }
   }
 
-  void _navigateToCreateReview() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateReviewPage(food: widget.food),
-      ),
-    ).then((_) =>
-        _fetchReviews()); // Refresh reviews when returning from create page
+  Future<void> _deleteReview(String reviewId) async {
+    final request = context.read<CookieRequest>();
+    
+    try {
+      final response = await request.post(
+        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/$reviewId/delete-review-flutter/",
+        {},
+      );
+      
+      if (!mounted) return;
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Review successfully deleted!")),
+        );
+        await _refreshData();
+      }
+
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error deleting review: $e")),
+        );
+      }
+    }
   }
 
-  void _navigateToUpdateReview(Review review) {
-    Navigator.push(
+  void _navigateToCreateReview() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateReviewPage(food: _currentFood),
+      ),
+    );
+    
+    if (mounted) {
+      await _refreshData();
+    }
+  }
+
+  void _navigateToUpdateReview(ReviewElement review) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UpdateReviewPage(
-          food: widget.food,
+          food: _currentFood,
           review: review,
         ),
       ),
-    ).then((_) =>
-        _fetchReviews()); // Refresh reviews when returning from update page
+    );
+    
+    if (mounted) {
+      await _refreshData();
+    }
   }
 
+  void _navigateToLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoginPage(),
+      ),
+    );
+  }
+
+  String formatDateTime(DateTime dateTime) {
+    final DateFormat formatter = DateFormat("MMMM d, yyyy, h:mm a");
+    return formatter.format(dateTime);
+  }
+  
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    final isGuest = !request.loggedIn;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Food Reviews'),
       ),
-      body: Column(
-        children: [
-          FoodCard(food: widget.food),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _navigateToCreateReview,
-              child: const Text('Add Review'),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Column(
+          children: [
+            FoodCard(
+              key: ValueKey(_currentFood.pk),
+              food: _currentFood,
             ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Review>>(
-              future: _reviewsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No reviews yet.'));
-                } else {
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: isGuest ? _navigateToLogin : _navigateToCreateReview,
+                child: Text(isGuest ? 'Login to Leave a Review' : 'Add Review'),
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<Review>(
+                future: _reviewsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.reviews.isEmpty) {
+                    return const Center(child: Text('No reviews yet.'));
+                  }
+                  
+                  final reviewData = snapshot.data!;
                   return ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: reviewData.reviews.length,
                     itemBuilder: (context, index) {
-                      final review = snapshot.data![index];
+                      final review = reviewData.reviews[index];
+                      final isReviewMaker = reviewData.currentUser.username == review.fields.user;
                       return ReviewCardWidget(
+                        key: ValueKey(review.pk),
+                        username: review.fields.user,
                         comment: review.fields.comment,
                         rating: review.fields.rating,
-                        timestamp: review.fields.timestamp.toIso8601String(),
+                        timestamp: formatDateTime(review.fields.timestamp),
+                        isReviewMaker: isReviewMaker,
+                        isAdmin: reviewData.currentUser.isAdmin,
                         onUpdate: () => _navigateToUpdateReview(review),
                         onDelete: () => _deleteReview(review.pk),
                       );
                     },
                   );
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 // create_review_page.dart
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/models/food.dart';
+import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -20,34 +20,36 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   int _rating = 5;
 
   Future<void> _submitReview() async {
-    if (_formKey.currentState!.validate()) {
-      final request = context.read<CookieRequest>();
+          if (_formKey.currentState!.validate()) {
+            final request = context.read<CookieRequest>();
 
-      final response = await request.postJson(
-        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/create-review-flutter/",
-        jsonEncode({
-          'comment': _commentController.text,
-          'rating': _rating.toString(),
-        }),
-      );
-
-      if (context.mounted) {
-        if (response['status'] == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Review successfully created!"),
-            ),
-          );
-          Navigator.pop(context); // Return to previous page
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("An error occurred, please try again."),
-            ),
-          );
-        }
-      }
-    }
+            // Make the POST request directly with parameters
+            final response = await request.post(
+              "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/update-review-flutter/",
+              {
+                'comment': _commentController.text, // Directly passing parameters
+                'rating': _rating.toString(),
+              }
+            );
+          
+          if (context.mounted) {
+              if (response['status'] == 'success') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Review successfully created!"),
+                      ),
+                  );
+                  Navigator.pop(context); // Return to previous page
+              } else {
+                  String errorMessage = response['message'] ?? 'An error occurred.';
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(errorMessage),
+                      ),
+                  );
+              }
+          }
+      } 
   }
 
   @override
