@@ -48,7 +48,7 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request.get(
-        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/json/'
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/flutter-reviews/${widget.food.pk}/'
       );
       return reviewFromJson(jsonEncode(response));
     } catch (e) {
