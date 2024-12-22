@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -6,6 +8,7 @@ import 'package:jelajah_rasa_mobile/profile-daffa/models/user_comment.dart';
 import 'package:jelajah_rasa_mobile/profile-daffa/models/user_favorite.dart';
 import 'package:jelajah_rasa_mobile/profile-daffa/models/user_reviewed.dart';
 import 'package:jelajah_rasa_mobile/profile-daffa/models/user.dart';
+import 'package:jelajah_rasa_mobile/profile-daffa/screens/edit_profile.dart';
 
 class ProfilePage extends StatefulWidget {
   final String username;
@@ -34,11 +37,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<UserProfile> fetchUserProfile(CookieRequest request) async {
-    final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-profile/${widget.username}/');
-    var data = response;
-    print(data);
-    return UserProfile.fromJson(data);
+    try {
+      final response = await request.get(
+        'http://127.0.0.1:8000/profile/api/user-profile/${widget.username}/',
+      );
+
+      return UserProfile.fromJson(response);
+    } catch (e) {
+      print('Error fetching profile: $e');
+      rethrow;
+    }
   }
 
   Future<List<UserComment>> fetchUserComments(CookieRequest request) async {
@@ -52,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage> {
         comments.add(UserComment.fromJson(d));
       }
     }
-    print(comments);
     return comments;
   }
 
@@ -66,7 +73,6 @@ class _ProfilePageState extends State<ProfilePage> {
         favorites.add(UserFavorite.fromJson(d));
       }
     }
-    print(favorites);
     return favorites;
   }
 
@@ -80,7 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
         reviews.add(UserReviews.fromJson(d));
       }
     }
-    print(reviews);
     return reviews;
   }
 
@@ -88,6 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -95,6 +101,38 @@ class _ProfilePageState extends State<ProfilePage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text("${widget.username}'s Profile"),
+        actions: [
+          FutureBuilder<UserProfile>(
+            future: userProfileFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(
+                          username: widget.username,
+                          userProfile: snapshot.data!,
+                        ),
+                      ),
+                    ).then((_) {
+                      // Refresh the profile data when returning from edit screen
+                      setState(() {
+                        final request = context.read<CookieRequest>();
+                        userProfileFuture = fetchUserProfile(request);
+                      });
+                    });
+                  },
+                  tooltip: 'Edit Profile',
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFFAB4A2F),
         elevation: 1,
