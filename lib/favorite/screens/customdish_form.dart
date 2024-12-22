@@ -234,7 +234,7 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       // Handle form submission
-                      final response = await request.postJson(
+                      final response = await request.post(
                         "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/addfavdish-flutter/",
                         jsonEncode(<String, String>{
                           'name': _name,
@@ -255,11 +255,12 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                                   Text("Favorite Dish successfully saved!"),
                             ),
                           );
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ShowFavorite()),
-                          );
+                          // Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => const ShowFavorite()),
+                          // );
+                          Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -287,3 +288,5 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
     );
   }
 }
+
+
