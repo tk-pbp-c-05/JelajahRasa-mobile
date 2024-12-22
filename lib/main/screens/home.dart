@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:jelajah_rasa_mobile/catalogue/screens/list_food.dart';
 import 'package:jelajah_rasa_mobile/report/screens/report_page.dart';
+import 'package:jelajah_rasa_mobile/profile-daffa/screens/profile.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
@@ -56,10 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
     isAdmin = widget.isAdmin;
   }
 
-  void _handleMenuSelection(String value) {
+  void _handleMenuSelection(String value, BuildContext context) {
+    final request = context.read<CookieRequest>();
     switch (value) {
       case 'Profile':
         // Navigasi ke halaman profil
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ProfilePage(
+                      username: request.jsonData['username'],
+                    )));
         break;
       case 'Check New Dish':
         Navigator.push(context,
@@ -191,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             color: const Color(0xFFE1A85F),
             offset: const Offset(0, 50),
-            onSelected: _handleMenuSelection,
+            onSelected: (value) => _handleMenuSelection(value, context),
             itemBuilder: (context) {
               if (isAuthenticated) {
                 return [
