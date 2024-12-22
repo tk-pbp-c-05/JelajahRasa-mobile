@@ -33,7 +33,10 @@ class CommentElement {
   String content;
   String createdAt;
   String updatedAt;
-  dynamic food;
+  bool foodMentioned;
+  String foodUuid;
+  String foodName;
+  String foodImage;
   int repliesCount;
 
   CommentElement({
@@ -44,7 +47,10 @@ class CommentElement {
     required this.content,
     required this.createdAt,
     required this.updatedAt,
-    required this.food,
+    required this.foodMentioned,
+    required this.foodUuid,
+    required this.foodName,
+    required this.foodImage,
     required this.repliesCount,
   });
 
@@ -56,7 +62,10 @@ class CommentElement {
         content: json["content"],
         createdAt: json["created_at"],
         updatedAt: json["updated_at"],
-        food: json["food"],
+        foodMentioned: json["food_mentioned"],
+        foodUuid: json["food_uuid"],
+        foodName: json["food_name"],
+        foodImage: json["food_image"],
         repliesCount: json["replies_count"],
       );
 
@@ -68,31 +77,10 @@ class CommentElement {
         "content": content,
         "created_at": createdAt,
         "updated_at": updatedAt,
-        "food": food,
+        "food_mentioned": foodMentioned,
+        "food_uuid": foodUuid,
+        "food_name": foodName,
+        "food_image": foodImage,
         "replies_count": repliesCount,
-      };
-}
-
-class FoodClass {
-  String uuid;
-  String name;
-  String image;
-
-  FoodClass({
-    required this.uuid,
-    required this.name,
-    required this.image,
-  });
-
-  factory FoodClass.fromJson(Map<String, dynamic> json) => FoodClass(
-        uuid: json["uuid"],
-        name: json["name"],
-        image: json["image"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "uuid": uuid,
-        "name": name,
-        "image": image,
       };
 }
