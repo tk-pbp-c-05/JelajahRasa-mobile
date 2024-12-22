@@ -4,9 +4,8 @@ import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
-
 class CustomDishFormPage extends StatefulWidget {
-  const CustomDishFormPage ({super.key});
+  const CustomDishFormPage({super.key});
 
   @override
   State<CustomDishFormPage> createState() => _CustomDishFormPageState();
@@ -39,14 +38,15 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
         title: const Text(
           "Customize Your Dish",
           style: TextStyle(
-            color:Color(0xFFAB4A2F),
+            color: Color(0xFFAB4A2F),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView( // This allows the form to scroll
+      body: SingleChildScrollView(
+        // This allows the form to scroll
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -211,7 +211,7 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 decoration: const InputDecoration(
-                   hintText: "You dont have to fill in image url",
+                  hintText: "You dont have to fill in image url",
                   labelText: "Image URL",
                   border: OutlineInputBorder(),
                 ),
@@ -235,7 +235,7 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                     if (_formKey.currentState!.validate()) {
                       // Handle form submission
                       final response = await request.postJson(
-                        "http://127.0.0.1:8000/MyFavoriteDishes/addfavdish-flutter/",
+                        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/addfavdish-flutter/",
                         jsonEncode(<String, String>{
                           'name': _name,
                           'price': _price.toString(),
@@ -251,17 +251,20 @@ class _CustomDishFormPageState extends State<CustomDishFormPage> {
                         if (response['status'] == 'success') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Favorite Dish successfully saved!"),
+                              content:
+                                  Text("Favorite Dish successfully saved!"),
                             ),
                           );
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const ShowFavorite()),
+                            MaterialPageRoute(
+                                builder: (context) => const ShowFavorite()),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Terdapat kesalahan, silakan coba lagi."),
+                              content: Text(
+                                  "Terdapat kesalahan, silakan coba lagi."),
                             ),
                           );
                         }

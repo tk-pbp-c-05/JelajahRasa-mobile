@@ -37,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<UserProfile> fetchUserProfile(CookieRequest request) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-profile/${widget.username}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-profile/${widget.username}/',
       );
 
       return UserProfile.fromJson(response);
@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<List<UserComment>> fetchUserComments(CookieRequest request) async {
     final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-comments/${widget.username}/');
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-comments/${widget.username}/');
 
     var data = response;
     List<UserComment> comments = [];
@@ -66,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<List<UserFavorite>> fetchUserFavorites(CookieRequest request) async {
     final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-favorites/${widget.username}/');
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-favorites/${widget.username}/');
     var data = response;
     List<UserFavorite> favorites = [];
     for (var d in data) {
@@ -79,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<List<UserReviews>> fetchUserReviews(CookieRequest request) async {
     final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-reviews/${widget.username}/');
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-reviews/${widget.username}/');
     var data = response;
     List<UserReviews> reviews = [];
     for (var d in data) {

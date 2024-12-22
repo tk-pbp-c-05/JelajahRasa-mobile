@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 
 class SelectFromMenuFormPage extends StatefulWidget {
   const SelectFromMenuFormPage({super.key});
@@ -13,18 +10,16 @@ class SelectFromMenuFormPage extends StatefulWidget {
 
 class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
   String? selectedFoodId;
+  List<Map<String, String>>? foods;
 
   Future<List<Map<String, String>>> fetchFoodsFromServer() async {
     final request = CookieRequest();
     final response = await request.get(
         'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/getfood-json/');
 
-    // Konversi setiap item ke Map<String, String>
     return response.map<Map<String, String>>((food) {
-      final map =
-          food as Map<String, dynamic>; // Casting food ke Map<String, dynamic>
-      final fields = map['fields']
-          as Map<String, dynamic>; // Casting fields ke Map<String, dynamic>
+      final map = food as Map<String, dynamic>;
+      final fields = map['fields'] as Map<String, dynamic>;
       return {
         "pk": map['pk'] as String,
         "name": fields['name'] as String,
@@ -78,7 +73,7 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Text('No dishes available');
                 }
-                final foods = snapshot.data!;
+                foods = snapshot.data!;
                 return DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
@@ -87,10 +82,10 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                   ),
                   value: selectedFoodId,
                   hint: const Text('Select a dish'),
-                  items: foods.map((food) {
+                  items: foods!.map((food) {
                     return DropdownMenuItem<String>(
-                      value: food["pk"], // Gunakan pk sebagai value
-                      child: Text(food["name"]!), // Tampilkan name
+                      value: food["pk"],
+                      child: Text(food["name"]!),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -101,45 +96,26 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                 );
               },
             ),
-            const SizedBox(height: 32), // Add spacing before the submit button
+            const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
+                onPressed: () {
                   if (selectedFoodId == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please select a dish')),
                     );
                     return;
                   }
-                  final request =
-                      Provider.of<CookieRequest>(context, listen: false);
-                  final body = jsonEncode({"pk": selectedFoodId});
-                  final response = await request.post(
-                    'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/select-favdish-flutter/',
-                    body,
+
+                  final selectedFood = foods!.firstWhere(
+                    (food) => food['pk'] == selectedFoodId,
                   );
-                  if (context.mounted) {
-                    if (response['status'] == 'success') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Favorite Dish successfully saved!"),
-                        ),
-                      );
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ShowFavorite()),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text("Terdapat kesalahan, silakan coba lagi."),
-                        ),
-                      );
-                    }
-                  }
+
+                  Navigator.pop(context, {
+                    'uuid': selectedFood['pk'],
+                    'name': selectedFood['name'],
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFAB4A2F),

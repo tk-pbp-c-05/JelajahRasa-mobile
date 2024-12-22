@@ -4,6 +4,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:jelajah_rasa_mobile/community/screens/comment_page.dart';
+import 'package:jelajah_rasa_mobile/community/screens/create_comment.dart';
+import 'package:jelajah_rasa_mobile/community/screens/edit_comment.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -13,10 +15,13 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
+  Key _futureBuilderKey = UniqueKey();
+
   Future<List<CommentElement>> fetchComments(CookieRequest request) async {
     try {
-      final response =
-          await request.get('http://127.0.0.1:8000/community/api/comments/');
+      final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/',
+      );
 
       if (response == null) {
         throw Exception('Response is null');
@@ -87,6 +92,7 @@ class _CommunityPageState extends State<CommunityPage> {
         ),
       ),
       body: FutureBuilder<List<CommentElement>>(
+        key: _futureBuilderKey,
         future: fetchComments(request),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -107,97 +113,180 @@ class _CommunityPageState extends State<CommunityPage> {
             itemBuilder: (context, index) {
               final comment = snapshot.data![index];
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CommentPage(uuid: comment.uuid),
                     ),
                   );
+
+                  // If we got a result back with a UUID, navigate to that comment
+                  if (result is Map<String, dynamic> &&
+                      result['edited_uuid'] != null) {
+                    if (context.mounted) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CommentPage(uuid: result['edited_uuid']),
+                        ),
+                      );
+                    }
+                  }
+
+                  // Refresh the comments list
+                  if (result == true ||
+                      (result is Map<String, dynamic> &&
+                          result['refresh'] == true)) {
+                    setState(() {
+                      _futureBuilderKey = UniqueKey();
+                    });
+                  }
                 },
                 child: Card(
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  color: const Color(0xFFFFF8F3),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (comment.food != null &&
-                          comment.food is FoodClass) ...[
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
-                          ),
-                          child: Image.network(
-                            (comment.food as FoodClass).image,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: 200,
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.broken_image),
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            comment.food.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                      ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(comment.userImage),
-                          onBackgroundImageError: (e, s) =>
-                              const Icon(Icons.person),
-                        ),
-                        title: Text(
-                          comment.username,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('@${comment.username.toLowerCase()}'),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          comment.content,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              formatDate(comment.createdAt),
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundImage:
+                                            NetworkImage(comment.userImage),
+                                        onBackgroundImageError: (e, s) =>
+                                            const Icon(Icons.person),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            comment.firstName,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            '@${comment.username.toLowerCase()}',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    comment.content,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    formatDate(comment.createdAt),
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Text(
-                              '${comment.repliesCount} Replies',
-                              style: const TextStyle(
-                                color: Color(0xFFAB4A2F),
-                                fontWeight: FontWeight.bold,
+                            if (comment.foodMentioned) ...[
+                              const SizedBox(width: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  comment.foodImage,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image),
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
+                      if (comment.foodMentioned)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFAB4A2F),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                comment.foodName,
+                                style: const TextStyle(
+                                  color: Color(0xFFE1A85F),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                '${comment.repliesCount} Replies',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                formatDate(comment.createdAt),
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '${comment.repliesCount} Replies',
+                                style: const TextStyle(
+                                  color: Color(0xFFAB4A2F),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -205,6 +294,28 @@ class _CommunityPageState extends State<CommunityPage> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFAB4A2F),
+        onPressed: () async {
+          if (!request.loggedIn) {
+            Navigator.pushNamed(context, '/login');
+            return;
+          }
+
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateCommentScreen(),
+            ),
+          );
+
+          if (result == true) {
+            // Refresh comments list
+            setState(() {});
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

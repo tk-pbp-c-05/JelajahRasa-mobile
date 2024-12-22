@@ -25,7 +25,8 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
 
     print("API Response Type: ${response.runtimeType}");
 

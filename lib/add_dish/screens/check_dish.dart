@@ -32,20 +32,24 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
 
   Future<void> fetchPendingDishes() async {
     final request = context.read<CookieRequest>();
-    const String apiUrl = 'http://127.0.0.1:8000/module4/flutter-get-pending-dishes/';
+    const String apiUrl =
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-get-pending-dishes/';
 
     try {
       final response = await request.get(apiUrl);
 
       if (response is List) {
-        List<NewDishEntry> dishes = response.map((item) {
-          try {
-            return NewDishEntry.fromJson(item);
-          } catch (e) {
-            print('Error parsing dish: $e');
-            return null;
-          }
-        }).whereType<NewDishEntry>().toList();
+        List<NewDishEntry> dishes = response
+            .map((item) {
+              try {
+                return NewDishEntry.fromJson(item);
+              } catch (e) {
+                print('Error parsing dish: $e');
+                return null;
+              }
+            })
+            .whereType<NewDishEntry>()
+            .toList();
 
         setState(() {
           pendingDishes = dishes;
@@ -72,7 +76,8 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
 
   Future<void> approveDish(String uuid) async {
     final request = context.read<CookieRequest>();
-    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-approve-dish/$uuid/';
+    final String apiUrl =
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-approve-dish/$uuid/';
 
     try {
       final response = await request.post(
@@ -102,7 +107,8 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
 
   Future<void> rejectDish(String uuid) async {
     final request = context.read<CookieRequest>();
-    final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-approve-dish/$uuid/';
+    final String apiUrl =
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-approve-dish/$uuid/';
 
     try {
       final response = await request.post(
@@ -178,13 +184,17 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text('Name: ${dish.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text('Name: ${dish.name}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold)),
                                       Text('Flavor: ${dish.flavor}'),
                                       Text('Category: ${dish.category}'),
                                       Text('Vendor: ${dish.vendorName}'),
-                                      Text('Price: \$${dish.price.toStringAsFixed(2)}'),
+                                      Text(
+                                          'Price: Rp${dish.price}'),
                                       Text('Map Link: ${dish.mapLink}'),
                                     ],
                                   ),
@@ -208,11 +218,13 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                                 Column(
                                   children: [
                                     IconButton(
-                                      icon: const FaIcon(FontAwesomeIcons.check, color: Colors.green),
+                                      icon: const FaIcon(FontAwesomeIcons.check,
+                                          color: Colors.green),
                                       onPressed: () => approveDish(dish.uuid),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.cancel, color: Colors.red),
+                                      icon: const Icon(Icons.cancel,
+                                          color: Colors.red),
                                       onPressed: () => rejectDish(dish.uuid),
                                     ),
                                   ],

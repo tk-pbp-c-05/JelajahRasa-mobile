@@ -16,8 +16,8 @@ class _ReportPageState extends State<ReportPage> {
   String _statusFilter = 'all';
 
   Future<List<Datum>> fetchReports(CookieRequest request) async {
-    final response =
-        await request.get('http://127.0.0.1:8000/report/api/reports/');
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/report/api/reports/');
     var reportResponse = ReportResponse.fromJson(response);
     return reportResponse.data;
   }
@@ -26,7 +26,7 @@ class _ReportPageState extends State<ReportPage> {
       CookieRequest request, int reportId, String status) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/report/api/reports/$reportId/status/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/report/api/reports/$reportId/status/',
         jsonEncode({'status': status}),
       );
       if (response['status']) {
@@ -55,7 +55,7 @@ class _ReportPageState extends State<ReportPage> {
   Future<void> deleteReport(CookieRequest request, int reportId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/report/api/reports/$reportId/delete/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/report/api/reports/$reportId/delete/',
         {},
       );
       if (response['status']) {

@@ -298,10 +298,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<List<dynamic>> fetchComments(CookieRequest request) async {
-    final response =
-        await request.get('http://127.0.0.1:8000/community/api/comments/');
-    return response['comments'] ?? [];
+  Future<List<CommentElement>> fetchComments(CookieRequest request) async {
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/');
+    Comment commentData = Comment.fromJson(response);
+    return commentData.comments;
   }
 
   Widget _buildFoodSection(BuildContext context, String title) {
@@ -553,7 +554,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           )
         else
-          FutureBuilder<List<dynamic>>(
+          FutureBuilder<List<CommentElement>>(
             future: fetchComments(request),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -564,9 +565,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 return const Center(child: Text('No comments available'));
               }
 
-              // Filter comment untuk mengambil top 3
+              // Filter comments to show only those with food mentions
               final comments = snapshot.data!
-                  .where((comment) => comment['food'] != 'No food')
+                  .where((comment) => comment.foodMentioned)
                   .take(3)
                   .toList();
 
@@ -576,9 +577,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
                   final comment = comments[index];
-                  String content = comment['content'];
+                  String content = comment.content;
                   if (content.length > 100) {
-                    content = '${content.substring(0, 100)}...';
+                    content = '${content.substring(0, 125)}...';
                   }
 
                   return Card(
@@ -586,115 +587,121 @@ class _MyHomePageState extends State<MyHomePage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Food Image and Name
-                          Container(
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 1,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(8),
-                                  ),
-                                  child: Image.network(
-                                    comment['food']['image'],
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 100,
-                                        width: 100,
-                                        color: Colors.grey[200],
-                                        child: const Icon(Icons.restaurant),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    comment['food']['name'],
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // User Info and Comment
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // User Info Row
-                                Row(
+                    color: const Color(0xFFFFF8F3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage:
-                                          NetworkImage(comment['user_image']),
-                                      onBackgroundImageError: (e, s) =>
-                                          const Icon(Icons.person),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    Row(
                                       children: [
-                                        Text(
-                                          comment['username'],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundImage:
+                                              NetworkImage(comment.userImage),
+                                          onBackgroundImageError: (e, s) =>
+                                              const Icon(Icons.person),
                                         ),
-                                        Text(
-                                          '@${comment['username']}',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              comment.firstName,
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              '@${comment.username.toLowerCase()}',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      content,
+                                      style: const TextStyle(fontSize: 14),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      comment.createdAt,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
-                                // Comment Text
-                                Text(
-                                  content,
-                                  style: const TextStyle(fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 4,
+                              ),
+                              const SizedBox(width: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  comment.foodImage,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image),
+                                    );
+                                  },
                                 ),
-                              ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFAB4A2F),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
                             ),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                comment.foodName,
+                                style: const TextStyle(
+                                  color: Color(0xFFE1A85F),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                '${comment.repliesCount} Replies',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -706,7 +713,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
 
     if (response == null) {
       throw Exception('Response is null');
@@ -732,7 +740,8 @@ class HomePageContent extends StatelessWidget {
   });
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
 
     if (response == null) {
       throw Exception('Response is null');
@@ -748,10 +757,11 @@ class HomePageContent extends StatelessWidget {
     return listFood;
   }
 
-  Future<List<dynamic>> fetchComments(CookieRequest request) async {
-    final response =
-        await request.get('http://127.0.0.1:8000/community/api/comments/');
-    return response['comments'] ?? [];
+  Future<List<CommentElement>> fetchComments(CookieRequest request) async {
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/');
+    Comment commentData = Comment.fromJson(response);
+    return commentData.comments;
   }
 
   Widget _buildFoodSection(BuildContext context, String title) {
@@ -1003,7 +1013,7 @@ class HomePageContent extends StatelessWidget {
             ),
           )
         else
-          FutureBuilder<List<dynamic>>(
+          FutureBuilder<List<CommentElement>>(
             future: fetchComments(request),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -1014,9 +1024,9 @@ class HomePageContent extends StatelessWidget {
                 return const Center(child: Text('No comments available'));
               }
 
-              // Filter comment untuk mengambil top 3
+              // Filter comments to show only those with food mentions
               final comments = snapshot.data!
-                  .where((comment) => comment['food'] != 'No food')
+                  .where((comment) => comment.foodMentioned)
                   .take(3)
                   .toList();
 
@@ -1026,7 +1036,7 @@ class HomePageContent extends StatelessWidget {
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
                   final comment = comments[index];
-                  String content = comment['content'];
+                  String content = comment.content;
                   if (content.length > 100) {
                     content = '${content.substring(0, 100)}...';
                   }
@@ -1036,115 +1046,121 @@ class HomePageContent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Food Image and Name
-                          Container(
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 1,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(8),
-                                  ),
-                                  child: Image.network(
-                                    comment['food']['image'],
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 100,
-                                        width: 100,
-                                        color: Colors.grey[200],
-                                        child: const Icon(Icons.restaurant),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    comment['food']['name'],
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // User Info and Comment
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // User Info Row
-                                Row(
+                    color: const Color(0xFFFFF8F3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage:
-                                          NetworkImage(comment['user_image']),
-                                      onBackgroundImageError: (e, s) =>
-                                          const Icon(Icons.person),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    Row(
                                       children: [
-                                        Text(
-                                          comment['username'],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundImage:
+                                              NetworkImage(comment.userImage),
+                                          onBackgroundImageError: (e, s) =>
+                                              const Icon(Icons.person),
                                         ),
-                                        Text(
-                                          '@${comment['username']}',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              comment.firstName,
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              '@${comment.username.toLowerCase()}',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      content,
+                                      style: const TextStyle(fontSize: 14),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      comment.createdAt,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
-                                // Comment Text
-                                Text(
-                                  content,
-                                  style: const TextStyle(fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 4,
+                              ),
+                              const SizedBox(width: 12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  comment.foodImage,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image),
+                                    );
+                                  },
                                 ),
-                              ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFAB4A2F),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
                             ),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                comment.foodName,
+                                style: const TextStyle(
+                                  color: Color(0xFFE1A85F),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                '${comment.repliesCount} Replies',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },

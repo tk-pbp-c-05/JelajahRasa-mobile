@@ -8,7 +8,7 @@ import 'dart:convert';
 class CreateReviewPage extends StatefulWidget {
   final Food food;
 
-  const CreateReviewPage({Key? key, required this.food}) : super(key: key);
+  const CreateReviewPage({super.key, required this.food});
 
   @override
   _CreateReviewPageState createState() => _CreateReviewPageState();

@@ -10,10 +10,10 @@ class UpdateReviewPage extends StatefulWidget {
   final ReviewElement review;
 
   const UpdateReviewPage({
-    Key? key,
+    super.key,
     required this.food,
     required this.review,
-  }) : super(key: key);
+  });
 
   @override
   _UpdateReviewPageState createState() => _UpdateReviewPageState();
@@ -27,7 +27,8 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
   @override
   void initState() {
     super.initState();
-    _commentController = TextEditingController(text: widget.review.fields.comment);
+    _commentController =
+        TextEditingController(text: widget.review.fields.comment);
     _rating = widget.review.fields.rating;
   }
 
@@ -136,3 +137,4 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
     );
   }
 }
+

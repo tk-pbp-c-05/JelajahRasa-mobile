@@ -15,7 +15,7 @@ import 'dart:convert';
 class FoodReviewPage extends StatefulWidget {
   final Food food;
 
-  const FoodReviewPage({Key? key, required this.food}) : super(key: key);
+  const FoodReviewPage({super.key, required this.food});
 
   @override
   _FoodReviewPageState createState() => _FoodReviewPageState();

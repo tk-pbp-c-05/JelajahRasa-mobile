@@ -20,7 +20,7 @@ class ReviewCardWidget extends StatelessWidget {
     required this.isAdmin,
     required this.onUpdate,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
