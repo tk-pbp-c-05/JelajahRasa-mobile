@@ -35,13 +35,12 @@ class _UpdateReviewPageState extends State<UpdateReviewPage> {
   Future<void> _updateReview() async {
     if (_formKey.currentState!.validate()) {
       final request = context.read<CookieRequest>();
-      
-      final response = await request.postJson(
-        "http://127.0.0.1:8000/review/food/${widget.review.pk}/update-review-flutter/",
-        jsonEncode({
-          'comment': _commentController.text,
+      final response = await request.post(
+        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.review.pk}/update-review-flutter/",
+        {
+          'comment': _commentController.text, // Directly passing parameters
           'rating': _rating.toString(),
-        }),
+        }
       );
       
       if (context.mounted) {

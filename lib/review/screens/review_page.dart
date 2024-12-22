@@ -15,7 +15,7 @@ import 'dart:convert';
 class FoodReviewPage extends StatefulWidget {
   final Food food;
 
-  const FoodReviewPage({super.key, required this.food});
+  const FoodReviewPage({Key? key, required this.food}) : super(key: key);
 
   @override
   _FoodReviewPageState createState() => _FoodReviewPageState();
@@ -36,7 +36,7 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/catalog/${widget.food.pk}/json/'
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/${widget.food.pk}/json/'
       );
       return Food.fromJson(response);
     } catch (e) {
@@ -48,7 +48,7 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/review/food/${widget.food.pk}/json/'
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/json/'
       );
       return reviewFromJson(jsonEncode(response));
     } catch (e) {
@@ -82,9 +82,9 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
     final request = context.read<CookieRequest>();
     
     try {
-      final response = await request.postJson(
-        "http://127.0.0.1:8000/review/food/$reviewId/delete-review-flutter/",
-        jsonEncode({}),
+      final response = await request.post(
+        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/$reviewId/delete-review-flutter/",
+        {},
       );
       
       if (!mounted) return;

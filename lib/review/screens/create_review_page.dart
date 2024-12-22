@@ -20,16 +20,17 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   int _rating = 5;
 
   Future<void> _submitReview() async {
-      if (_formKey.currentState!.validate()) {
-          final request = context.read<CookieRequest>();
-          
-          final response = await request.postJson(
-            "http://127.0.0.1:8000/review/food/${widget.food.pk}/create-review-flutter/",
-            jsonEncode({
-                'comment': _commentController.text,
+          if (_formKey.currentState!.validate()) {
+            final request = context.read<CookieRequest>();
+
+            // Make the POST request directly with parameters
+            final response = await request.post(
+              "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/update-review-flutter/",
+              {
+                'comment': _commentController.text, // Directly passing parameters
                 'rating': _rating.toString(),
-            }),
-          );
+              }
+            );
           
           if (context.mounted) {
               if (response['status'] == 'success') {
