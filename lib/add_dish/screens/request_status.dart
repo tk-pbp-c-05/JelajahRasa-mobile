@@ -23,7 +23,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
   Future<void> fetchUserRequests() async {
     final request = context.read<CookieRequest>();
     const String apiUrl =
-        'http://127.0.0.1:8000/module4/flutter-get-user-dishes/';
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-get-user-dishes/';
 
     try {
       final response = await request.get(apiUrl);
@@ -48,7 +48,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
   Future<void> deleteDish(String uuid) async {
     final request = context.read<CookieRequest>();
     final String apiUrl =
-        'http://127.0.0.1:8000/module4/flutter-delete-rejected-dish/$uuid/';
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-delete-rejected-dish/$uuid/';
 
     try {
       // Menggunakan form-data untuk mengirim parameter _method
@@ -75,6 +75,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
       );
     }
   }
+
   Future<void> confirmDelete(String uuid) async {
     await showDialog(
       context: context,
@@ -90,7 +91,8 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE0A85E),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               ),
               child: const Text(
                 'Yes',
@@ -103,7 +105,8 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFAB4A2F),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               ),
               child: const Text(
                 'Cancel',
@@ -183,10 +186,12 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                           builder: (context) {
                             return Padding(
                               padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
                               ),
                               child: SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.9,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.9,
                                 child: EditDish(dish: request),
                               ),
                             );
@@ -194,7 +199,8 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                         ).then((updatedDish) {
                           if (updatedDish != null) {
                             setState(() {
-                              int index = requests.indexWhere((element) => element.uuid == updatedDish.uuid);
+                              int index = requests.indexWhere((element) =>
+                                  element.uuid == updatedDish.uuid);
                               if (index != -1) {
                                 requests[index] = updatedDish;
                                 requests[index].status = 'Pending';

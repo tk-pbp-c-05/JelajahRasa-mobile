@@ -8,7 +8,7 @@ import 'dart:convert';
 class CreateReviewPage extends StatefulWidget {
   final Food food;
 
-  const CreateReviewPage({Key? key, required this.food}) : super(key: key);
+  const CreateReviewPage({super.key, required this.food});
 
   @override
   _CreateReviewPageState createState() => _CreateReviewPageState();
@@ -20,34 +20,34 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   int _rating = 5;
 
   Future<void> _submitReview() async {
-      if (_formKey.currentState!.validate()) {
-          final request = context.read<CookieRequest>();
-          
-          final response = await request.postJson(
-            "https://localhost:8000/review/food/${widget.food.pk}/create-review-flutter/",
-            jsonEncode({
-                'comment': _commentController.text,
-                'rating': _rating.toString(),
-            }),
+    if (_formKey.currentState!.validate()) {
+      final request = context.read<CookieRequest>();
+
+      final response = await request.postJson(
+        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/create-review-flutter/",
+        jsonEncode({
+          'comment': _commentController.text,
+          'rating': _rating.toString(),
+        }),
+      );
+
+      if (context.mounted) {
+        if (response['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Review successfully created!"),
+            ),
           );
-          
-          if (context.mounted) {
-              if (response['status'] == 'success') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Review successfully created!"),
-                      ),
-                  );
-                  Navigator.pop(context); // Return to previous page
-              } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("An error occurred, please try again."),
-                      ),
-                  );
-              }
-          }
+          Navigator.pop(context); // Return to previous page
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("An error occurred, please try again."),
+            ),
+          );
+        }
       }
+    }
   }
 
   @override

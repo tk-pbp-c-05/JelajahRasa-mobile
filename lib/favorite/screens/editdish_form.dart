@@ -83,7 +83,8 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(  // Wrap the body content with SingleChildScrollView
+      body: SingleChildScrollView(
+        // Wrap the body content with SingleChildScrollView
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -245,7 +246,7 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final response = await request.postJson(
-                        "http://127.0.0.1:8000/MyFavoriteDishes/edit-flutter/${widget.dish.pk}/",
+                        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/edit-flutter/${widget.dish.pk}/",
                         jsonEncode(<String, String>{
                           'name': _nameController.text,
                           'price': _priceController.text,
@@ -262,8 +263,10 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
                         if (response['status'] == 'success') {
                           // Update dish object with new data
                           widget.dish.fields.name = _nameController.text;
-                          widget.dish.fields.price = int.tryParse(_priceController.text) ?? 0;
-                          widget.dish.fields.vendorName = _vendorNameController.text;
+                          widget.dish.fields.price =
+                              int.tryParse(_priceController.text) ?? 0;
+                          widget.dish.fields.vendorName =
+                              _vendorNameController.text;
                           widget.dish.fields.image = _imageController.text;
                           widget.dish.fields.flavor = _selectedFlavor ?? '';
                           widget.dish.fields.category = _selectedCategory ?? '';
@@ -274,7 +277,8 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
                           Navigator.pop(context, widget.dish);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Error updating dish")),
+                            const SnackBar(
+                                content: Text("Error updating dish")),
                           );
                         }
                       }
@@ -296,5 +300,3 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
     );
   }
 }
-
-

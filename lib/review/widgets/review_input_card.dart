@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ReviewInputWidget extends StatefulWidget {
   final Function(String comment, int rating) onSubmit;
 
-  const ReviewInputWidget({Key? key, required this.onSubmit}) : super(key: key);
+  const ReviewInputWidget({super.key, required this.onSubmit});
 
   @override
   State<ReviewInputWidget> createState() => _ReviewInputWidgetState();
@@ -31,7 +31,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
         children: [
           TextFormField(
             controller: _commentController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Comment',
               border: OutlineInputBorder(),
             ),
@@ -40,7 +40,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
                 : null,
           ),
           const SizedBox(height: 16),
-          Text('Rating:', style: TextStyle(fontSize: 16)),
+          const Text('Rating:', style: TextStyle(fontSize: 16)),
           Row(
             children: List.generate(5, (index) {
               return IconButton(
@@ -56,7 +56,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
           ),
           ElevatedButton(
             onPressed: _handleSubmit,
-            child: Text('Submit Review'),
+            child: const Text('Submit Review'),
           ),
         ],
       ),

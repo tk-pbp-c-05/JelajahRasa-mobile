@@ -38,7 +38,7 @@ class _CreateReplyScreenState extends State<CreateReplyScreen> {
     try {
       final username = request.jsonData['username'];
       final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-profile/$username/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-profile/$username/',
       );
       if (mounted) {
         setState(() {
@@ -227,7 +227,7 @@ class _CreateReplyScreenState extends State<CreateReplyScreen> {
 
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/community/api/add-reply/${widget.commentUuid}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/add-reply/${widget.commentUuid}/',
         jsonEncode({
           'content': _replyController.text,
         }),

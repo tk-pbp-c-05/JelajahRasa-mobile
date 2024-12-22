@@ -19,8 +19,8 @@ class _CommunityPageState extends State<CommunityPage> {
 
   Future<List<CommentElement>> fetchComments(CookieRequest request) async {
     try {
-      final response =
-          await request.get('http://127.0.0.1:8000/community/api/comments/');
+      final response = await request.get(
+          'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/');
 
       if (response == null) {
         throw Exception('Response is null');

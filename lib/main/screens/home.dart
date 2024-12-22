@@ -12,7 +12,6 @@ import 'package:jelajah_rasa_mobile/report/screens/report_page.dart';
 import 'package:jelajah_rasa_mobile/profile-daffa/screens/profile.dart';
 import 'package:jelajah_rasa_mobile/community/screens/community_page.dart';
 import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
-import 'package:jelajah_rasa_mobile/community/models/comment.dart';
 
 class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
@@ -299,8 +298,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<dynamic>> fetchComments(CookieRequest request) async {
-    final response =
-        await request.get('http://127.0.0.1:8000/community/api/comments/');
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/');
     return response['comments'] ?? [];
   }
 
@@ -706,7 +705,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
 
     if (response == null) {
       throw Exception('Response is null');
@@ -732,7 +732,8 @@ class HomePageContent extends StatelessWidget {
   });
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
 
     if (response == null) {
       throw Exception('Response is null');
@@ -749,8 +750,8 @@ class HomePageContent extends StatelessWidget {
   }
 
   Future<List<dynamic>> fetchComments(CookieRequest request) async {
-    final response =
-        await request.get('http://127.0.0.1:8000/community/api/comments/');
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/');
     return response['comments'] ?? [];
   }
 

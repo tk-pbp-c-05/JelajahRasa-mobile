@@ -19,7 +19,7 @@ class _CommentPageState extends State<CommentPage> {
   Future<Map<String, dynamic>> fetchCommentDetail(CookieRequest request) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/community/api/comments/${widget.uuid}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/comments/${widget.uuid}/',
       );
       return response['comment'];
     } catch (e) {
@@ -242,7 +242,7 @@ class _CommentPageState extends State<CommentPage> {
                                                   children: [
                                                     FutureBuilder(
                                                       future: request.get(
-                                                        'http://127.0.0.1:8000/profile/api/user-profile/${reply['username']}/',
+                                                        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-profile/${reply['username']}/',
                                                       ),
                                                       builder:
                                                           (context, snapshot) {
@@ -389,7 +389,7 @@ class _CommentPageState extends State<CommentPage> {
           if (confirm == true) {
             try {
               final response = await request.post(
-                'http://127.0.0.1:8000/community/api/delete-comment/${comment['uuid']}/',
+                'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/delete-comment/${comment['uuid']}/',
                 {},
               );
               if (context.mounted) {
@@ -458,7 +458,7 @@ class _CommentPageState extends State<CommentPage> {
           if (confirm == true) {
             try {
               final response = await request.post(
-                'http://127.0.0.1:8000/community/api/delete-reply/${reply['uuid']}/',
+                'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/delete-reply/${reply['uuid']}/',
                 {},
               );
               if (context.mounted) {

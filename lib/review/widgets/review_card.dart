@@ -4,17 +4,17 @@ class ReviewCardWidget extends StatelessWidget {
   final String comment;
   final int rating;
   final String timestamp;
-  final VoidCallback onUpdate;  // Changed to VoidCallback
+  final VoidCallback onUpdate; // Changed to VoidCallback
   final VoidCallback onDelete;
 
   const ReviewCardWidget({
-    Key? key,
+    super.key,
     required this.comment,
     required this.rating,
     required this.timestamp,
     required this.onUpdate,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class ReviewCardWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: onUpdate,  // Simply call onUpdate directly
+                  onPressed: onUpdate, // Simply call onUpdate directly
                   child: const Text('Update'),
                 ),
                 TextButton(

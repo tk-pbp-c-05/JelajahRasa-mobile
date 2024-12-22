@@ -56,32 +56,33 @@ class _EditDishState extends State<EditDish> {
     super.dispose();
   }
 
-Future<void> _updateDish(NewDishEntry updatedDish) async {
-  final request = context.read<CookieRequest>();
-  final String apiUrl = 'http://127.0.0.1:8000/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
+  Future<void> _updateDish(NewDishEntry updatedDish) async {
+    final request = context.read<CookieRequest>();
+    final String apiUrl =
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-edit-rejected-dish/${updatedDish.uuid}/';
 
-  try {
-    final response = await request.post(
-      apiUrl,
-      jsonEncode(updatedDish.toJson()),
-    );
-
-    if (response['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dish updated successfully!')),
+    try {
+      final response = await request.post(
+        apiUrl,
+        jsonEncode(updatedDish.toJson()),
       );
-      Navigator.pop(context, updatedDish);
-    } else {
+
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dish updated successfully!')),
+        );
+        Navigator.pop(context, updatedDish);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response['message']}')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
 
   void _saveDish() {
     if (_formKey.currentState?.validate() ?? false) {
@@ -117,7 +118,10 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
         ),
         title: const Text(
           'Edit Dish',
-          style: TextStyle(color: Color(0xFFF4B5A4), fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Color(0xFFF4B5A4),
+              fontSize: 24,
+              fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white70,
       ),
@@ -129,9 +133,11 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
             children: [
               _buildTextField("Dish Name", dishNameController),
               const SizedBox(height: 16),
-              _buildDropdown("Flavor", flavor, flavors, (value) => setState(() => flavor = value!)),
+              _buildDropdown("Flavor", flavor, flavors,
+                  (value) => setState(() => flavor = value!)),
               const SizedBox(height: 16),
-              _buildDropdown("Category", category, categories, (value) => setState(() => category = value!)),
+              _buildDropdown("Category", category, categories,
+                  (value) => setState(() => category = value!)),
               const SizedBox(height: 16),
               _buildTextField("Vendor's Name", vendorNameController),
               const SizedBox(height: 16),
@@ -149,7 +155,8 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
                   backgroundColor: const Color(0xFFF18F73),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text('Save',
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
@@ -158,7 +165,8 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool isNumber = false}) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool isNumber = false}) {
     return TextFormField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
@@ -166,11 +174,14 @@ Future<void> _updateDish(NewDishEntry updatedDish) async {
     );
   }
 
-  Widget _buildDropdown(String label, String value, List<String> options, void Function(String?) onChanged) {
+  Widget _buildDropdown(String label, String value, List<String> options,
+      void Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(labelText: label),
-      items: options.map((option) => DropdownMenuItem(value: option, child: Text(option))).toList(),
+      items: options
+          .map((option) => DropdownMenuItem(value: option, child: Text(option)))
+          .toList(),
       onChanged: onChanged,
     );
   }

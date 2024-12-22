@@ -15,20 +15,23 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
   String? selectedFoodId;
 
   Future<List<Map<String, String>>> fetchFoodsFromServer() async {
-  final request = CookieRequest();
-  final response = await request.get('http://127.0.0.1:8000/MyFavoriteDishes/getfood-json/');
-  
-  // Konversi setiap item ke Map<String, String>
-  return response.map<Map<String, String>>((food) {
-    final map = food as Map<String, dynamic>; // Casting food ke Map<String, dynamic>
-    final fields = map['fields'] as Map<String, dynamic>; // Casting fields ke Map<String, dynamic>
-    return {
-      "pk": map['pk'] as String,
-      "name": fields['name'] as String,
-    };
-  }).toList();
-}
-  
+    final request = CookieRequest();
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/getfood-json/');
+
+    // Konversi setiap item ke Map<String, String>
+    return response.map<Map<String, String>>((food) {
+      final map =
+          food as Map<String, dynamic>; // Casting food ke Map<String, dynamic>
+      final fields = map['fields']
+          as Map<String, dynamic>; // Casting fields ke Map<String, dynamic>
+      return {
+        "pk": map['pk'] as String,
+        "name": fields['name'] as String,
+      };
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,17 +106,17 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                 
                   if (selectedFoodId == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please select a dish')),
                     );
                     return;
                   }
-                  final request = Provider.of<CookieRequest>(context, listen: false);
+                  final request =
+                      Provider.of<CookieRequest>(context, listen: false);
                   final body = jsonEncode({"pk": selectedFoodId});
                   final response = await request.post(
-                    'http://127.0.0.1:8000/MyFavoriteDishes/select-favdish-flutter/',
+                    'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/select-favdish-flutter/',
                     body,
                   );
                   if (context.mounted) {
@@ -125,12 +128,14 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
                       );
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const ShowFavorite()),
+                        MaterialPageRoute(
+                            builder: (context) => const ShowFavorite()),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Terdapat kesalahan, silakan coba lagi."),
+                          content:
+                              Text("Terdapat kesalahan, silakan coba lagi."),
                         ),
                       );
                     }

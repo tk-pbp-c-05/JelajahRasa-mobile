@@ -167,7 +167,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final response = await request.post(
-                        'http://127.0.0.1:8000/profile/api/edit-profile/${widget.username}/',
+                        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/edit-profile/${widget.username}/',
                         jsonEncode({
                           'first_name': _firstName,
                           'last_name': _lastName,

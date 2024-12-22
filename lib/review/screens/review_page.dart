@@ -13,7 +13,7 @@ import 'dart:convert';
 class FoodReviewPage extends StatefulWidget {
   final Food food;
 
-  const FoodReviewPage({Key? key, required this.food}) : super(key: key);
+  const FoodReviewPage({super.key, required this.food});
 
   @override
   _FoodReviewPageState createState() => _FoodReviewPageState();
@@ -29,43 +29,42 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
   }
 
   Future<void> _fetchReviews() async {
-      final request = context.read<CookieRequest>();
-      try {
-          final response = await request.get(
-              'https://localhost:8000/review/food/${widget.food.pk}/'
-          );
-          setState(() {
-              _reviewsFuture = Future.value(reviewFromJson(jsonEncode(response)));
-          });
-      } catch (e) {
-          throw Exception('Failed to load reviews: $e');
-      }
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.get(
+          'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/review/food/${widget.food.pk}/');
+      setState(() {
+        _reviewsFuture = Future.value(reviewFromJson(jsonEncode(response)));
+      });
+    } catch (e) {
+      throw Exception('Failed to load reviews: $e');
+    }
   }
 
   Future<void> _deleteReview(String reviewId) async {
-      final request = context.read<CookieRequest>();
-      
-      final response = await request.postJson(
-          "https://localhost:8000/review/food/$reviewId/delete-review-flutter/",
-          jsonEncode({}),  // Empty body for delete
-      );
-      
-      if (context.mounted) {
-          if (response['status'] == 'success') {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Review successfully deleted!"),
-                  ),
-              );
-              _fetchReviews();  // Refresh the reviews
-          } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("An error occurred, please try again."),
-                  ),
-              );
-          }
+    final request = context.read<CookieRequest>();
+
+    final response = await request.postJson(
+      "https://localhost:8000/review/food/$reviewId/delete-review-flutter/",
+      jsonEncode({}), // Empty body for delete
+    );
+
+    if (context.mounted) {
+      if (response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Review successfully deleted!"),
+          ),
+        );
+        _fetchReviews(); // Refresh the reviews
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("An error occurred, please try again."),
+          ),
+        );
       }
+    }
   }
 
   void _navigateToCreateReview() {
@@ -74,7 +73,8 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
       MaterialPageRoute(
         builder: (context) => CreateReviewPage(food: widget.food),
       ),
-    ).then((_) => _fetchReviews()); // Refresh reviews when returning from create page
+    ).then((_) =>
+        _fetchReviews()); // Refresh reviews when returning from create page
   }
 
   void _navigateToUpdateReview(Review review) {
@@ -86,7 +86,8 @@ class _FoodReviewPageState extends State<FoodReviewPage> {
           review: review,
         ),
       ),
-    ).then((_) => _fetchReviews()); // Refresh reviews when returning from update page
+    ).then((_) =>
+        _fetchReviews()); // Refresh reviews when returning from update page
   }
 
   @override

@@ -29,7 +29,8 @@ class _FoodPageState extends State<FoodPage> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+    final response = await request
+        .get('https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/catalog/json/');
     List<Food> listFood = [];
 
     if (response is List) {
@@ -47,7 +48,7 @@ class _FoodPageState extends State<FoodPage> {
       BuildContext context, CookieRequest request, String foodId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/report/api/food/$foodId/report/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/report/api/food/$foodId/report/',
         jsonEncode({
           'issue_type': _selectedIssueType,
           'description': _description,

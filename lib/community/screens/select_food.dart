@@ -14,8 +14,8 @@ class _SelectFromMenuFormPageState extends State<SelectFromMenuFormPage> {
 
   Future<List<Map<String, String>>> fetchFoodsFromServer() async {
     final request = CookieRequest();
-    final response = await request
-        .get('http://127.0.0.1:8000/MyFavoriteDishes/getfood-json/');
+    final response = await request.get(
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/getfood-json/');
 
     return response.map<Map<String, String>>((food) {
       final map = food as Map<String, dynamic>;

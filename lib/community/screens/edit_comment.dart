@@ -75,7 +75,7 @@ class _EditCommentScreenState extends State<EditCommentScreen> {
 
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/community/api/edit-comment/${widget.uuid}/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/edit-comment/${widget.uuid}/',
         jsonEncode({
           'content': _commentController.text,
         }),

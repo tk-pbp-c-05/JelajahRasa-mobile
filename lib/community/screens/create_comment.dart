@@ -26,7 +26,7 @@ class _CreateCommentScreenState extends State<CreateCommentScreen> {
     try {
       final username = request.jsonData['username'];
       final response = await request.get(
-        'http://127.0.0.1:8000/profile/api/user-profile/$username/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/profile/api/user-profile/$username/',
       );
       if (mounted) {
         setState(() {
@@ -196,7 +196,7 @@ class _CreateCommentScreenState extends State<CreateCommentScreen> {
 
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/community/api/add-comment/',
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/community/api/add-comment/',
         {
           'content': _commentController.text,
           'food_uuid': selectedFood?['uuid'] ?? '',

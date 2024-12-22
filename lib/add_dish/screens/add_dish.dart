@@ -36,7 +36,7 @@ class _AddDishState extends State<AddDish> {
   Future<void> _submitDishToServer(NewDishEntry newDish) async {
     final request = context.read<CookieRequest>();
     const String apiUrl =
-        'http://127.0.0.1:8000/module4/flutter-add-dish/'; // Ganti dengan URL Django Anda
+        'https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/module4/flutter-add-dish/'; // Ganti dengan URL Django Anda
 
     try {
       final response = await request.post(
