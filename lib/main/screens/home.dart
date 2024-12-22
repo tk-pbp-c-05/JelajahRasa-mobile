@@ -6,7 +6,6 @@ import 'package:jelajah_rasa_mobile/add_dish/screens/check_dish.dart';
 import 'package:jelajah_rasa_mobile/catalogue/screens/list_food_guest.dart';
 import 'package:jelajah_rasa_mobile/favorite/screens/show_favorite.dart';
 import '../widgets/food_card.dart';
-import '../widgets/navbar.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:jelajah_rasa_mobile/catalogue/screens/list_food.dart';
@@ -282,7 +281,6 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: const LeftDrawer(),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
