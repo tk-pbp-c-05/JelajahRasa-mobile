@@ -119,22 +119,11 @@ class _LoginPageState extends State<LoginPage> {
                         }),
                       );
 
-                      // Debug prints
-                      print('Login Response:');
-                      print('Full response: $response');
-                      print('Is logged in: ${request.loggedIn}');
-                      print('Cookie data: ${request.jsonData}');
-
                       if (response['status'] == 'success') {
                         String message =
                             response['message'] ?? "Login successful!";
                         String uname = response['username'] ?? username;
                         bool isAdmin = response['is_admin'] ?? false;
-
-                        // Debug prints for specific fields
-                        print('Username: $uname');
-                        print('Is Admin: $isAdmin');
-                        print('Message: $message');
 
                         request.jsonData['is_admin'] = isAdmin;
                         request.jsonData['username'] = uname;
