@@ -16,12 +16,14 @@ class _ReportPageState extends State<ReportPage> {
   String _statusFilter = 'all';
 
   Future<List<Datum>> fetchReports(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/report/api/reports/');
+    final response =
+        await request.get('http://127.0.0.1:8000/report/api/reports/');
     var reportResponse = ReportResponse.fromJson(response);
     return reportResponse.data;
   }
 
-  Future<void> updateReportStatus(CookieRequest request, int reportId, String status) async {
+  Future<void> updateReportStatus(
+      CookieRequest request, int reportId, String status) async {
     try {
       final response = await request.post(
         'http://127.0.0.1:8000/report/api/reports/$reportId/status/',
@@ -81,9 +83,14 @@ class _ReportPageState extends State<ReportPage> {
 
   List<Datum> _filterReports(List<Datum> reports) {
     return reports.where((report) {
-      final matchesSearch = report.fields.food.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                          report.fields.issueType.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesStatus = _statusFilter == 'all' || report.fields.status == _statusFilter;
+      final matchesSearch = report.fields.food
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
+          report.fields.issueType
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
+      final matchesStatus =
+          _statusFilter == 'all' || report.fields.status == _statusFilter;
       return matchesSearch && matchesStatus;
     }).toList();
   }
@@ -174,39 +181,51 @@ class _ReportPageState extends State<ReportPage> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (request.jsonData['is_admin'] == true && report.fields.status == 'pending') ...[
+                              if (request.jsonData['is_admin'] == true &&
+                                  report.fields.status == 'pending') ...[
                                 IconButton(
-                                  icon: const Icon(Icons.check, color: Colors.green),
-                                  onPressed: () => updateReportStatus(request, report.pk, 'approved'),
+                                  icon: const Icon(Icons.check,
+                                      color: Colors.green),
+                                  onPressed: () => updateReportStatus(
+                                      request, report.pk, 'approved'),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.red),
-                                  onPressed: () => updateReportStatus(request, report.pk, 'rejected'),
+                                  icon: const Icon(Icons.close,
+                                      color: Colors.red),
+                                  onPressed: () => updateReportStatus(
+                                      request, report.pk, 'rejected'),
                                 ),
                               ],
-                              if (request.jsonData['is_admin'] == true && (report.fields.status == 'approved' || report.fields.status == 'rejected')) ...[
+                              if (request.jsonData['is_admin'] == true &&
+                                  (report.fields.status == 'approved' ||
+                                      report.fields.status == 'rejected')) ...[
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
                                   onPressed: () {
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           title: const Text('Delete Report'),
-                                          content: const Text('Are you sure you want to delete this report?'),
+                                          content: const Text(
+                                              'Are you sure you want to delete this report?'),
                                           actions: [
                                             TextButton(
-                                              onPressed: () => Navigator.pop(context),
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
                                               child: const Text('Cancel'),
                                             ),
                                             TextButton(
                                               onPressed: () {
                                                 Navigator.pop(context);
-                                                deleteReport(request, report.pk);
+                                                deleteReport(
+                                                    request, report.pk);
                                               },
                                               child: const Text(
                                                 'Delete',
-                                                style: TextStyle(color: Colors.red),
+                                                style: TextStyle(
+                                                    color: Colors.red),
                                               ),
                                             ),
                                           ],
@@ -217,7 +236,8 @@ class _ReportPageState extends State<ReportPage> {
                                 ),
                               ] else ...[
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: report.fields.status == 'approved'
                                         ? Colors.green.withOpacity(0.2)
