@@ -194,7 +194,7 @@ class _PendingDishesScreenState extends State<PendingDishesScreen> {
                                       Text('Category: ${dish.category}'),
                                       Text('Vendor: ${dish.vendorName}'),
                                       Text(
-                                          'Price: Rp${dish.price.toStringAsFixed(2)}'),
+                                          'Price: Rp${dish.price}'),
                                       Text('Map Link: ${dish.mapLink}'),
                                     ],
                                   ),
