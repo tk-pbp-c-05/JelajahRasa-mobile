@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jelajah_rasa_mobile/catalogue/models/food.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -12,10 +11,6 @@ class FoodPageGuest extends StatefulWidget {
 }
 
 class _FoodPageGuestState extends State<FoodPageGuest> {
-  final _formKey = GlobalKey<FormState>();
-  String _selectedIssueType = '';
-  String _description = '';
-
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _sortBy = 'name'; // Options: name, price_asc, price_desc
@@ -29,28 +24,77 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
   }
 
   Future<List<Food>> fetchFood(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/catalog/json/');
-    var data = response;
-    List<Food> listFood = [];
-    for (var d in data) {
-      if (d != null) {
-        listFood.add(Food.fromJson(d));
+    try {
+      final response = await request.get('http://127.0.0.1:8000/catalog/json/');
+
+      print("API Response Type: ${response.runtimeType}");
+
+      if (response == null) {
+        throw Exception('Response is null');
       }
+
+      List<Food> listFood = [];
+
+      if (response is List) {
+        for (var d in response) {
+          try {
+            if (d != null) {
+              print("\n--- Processing Food Item ---");
+              print("Raw data: $d");
+              print("Fields data: ${d['fields']}");
+
+              final fields = d['fields'];
+              if (fields != null) {
+                print("Name: ${fields['name']}");
+                print("Flavor: ${fields['flavor']}");
+                print("Category: ${fields['category']}");
+                print("Price: ${fields['price']}");
+                print("Vendor: ${fields['vendor_name']}");
+                print("Image: ${fields['image']}");
+                print("Rating Count: ${fields['rating_count']}");
+                print("Average Rating: ${fields['average_rating']}");
+              } else {
+                print("Fields is null!");
+              }
+
+              Food food = Food.fromJson(d);
+              listFood.add(food);
+            }
+          } catch (e, stackTrace) {
+            print("\n--- Error Details ---");
+            print("Error type: ${e.runtimeType}");
+            print("Error message: $e");
+            print("Stack trace: $stackTrace");
+            print("Problematic data structure: ${d.runtimeType}");
+            print("Problematic data: $d");
+          }
+        }
+      } else {
+        throw Exception('Response is not a List: ${response.runtimeType}');
+      }
+
+      return listFood;
+    } catch (e, stackTrace) {
+      print("Error fetching food: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to fetch food: $e');
     }
-    return listFood;
   }
 
   List<Food> _filterAndSortFoods(List<Food> foods) {
     var filteredFoods = foods.where((food) {
       final searchTerm = _searchQuery.toLowerCase();
-      final matchesSearch = food.fields.name.toLowerCase().contains(searchTerm) ||
-             food.fields.vendorName.toLowerCase().contains(searchTerm);
+      final matchesSearch =
+          food.fields.name.toLowerCase().contains(searchTerm) ||
+              food.fields.vendorName.toLowerCase().contains(searchTerm);
 
       final matchesFlavor = _selectedFlavor == 'all' ||
-             food.fields.flavor.toString().toLowerCase().split('.').last  == _selectedFlavor;
+          food.fields.flavor.toString().toLowerCase().split('.').last ==
+              _selectedFlavor;
 
       final matchesCategory = _selectedCategory == 'all' ||
-             food.fields.category.toString().toLowerCase().split('.').last == _selectedCategory;
+          food.fields.category.toString().toLowerCase().split('.').last ==
+              _selectedCategory;
 
       return matchesSearch && matchesFlavor && matchesCategory;
     }).toList();
@@ -123,9 +167,11 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
                         ),
                         value: _selectedCategory,
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Categories')),
+                          DropdownMenuItem(
+                              value: 'all', child: Text('All Categories')),
                           DropdownMenuItem(value: 'food', child: Text('Food')),
-                          DropdownMenuItem(value: 'beverage', child: Text('Beverage')),
+                          DropdownMenuItem(
+                              value: 'beverage', child: Text('Beverage')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -144,9 +190,12 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
                         ),
                         value: _selectedFlavor,
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Flavors')),
-                          DropdownMenuItem(value: 'sweet', child: Text('Sweet')),
-                          DropdownMenuItem(value: 'salty', child: Text('Salty')),
+                          DropdownMenuItem(
+                              value: 'all', child: Text('All Flavors')),
+                          DropdownMenuItem(
+                              value: 'sweet', child: Text('Sweet')),
+                          DropdownMenuItem(
+                              value: 'salty', child: Text('Salty')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -169,8 +218,11 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
                   value: _sortBy,
                   items: const [
                     DropdownMenuItem(value: 'name', child: Text('Name (A-Z)')),
-                    DropdownMenuItem(value: 'price_asc', child: Text('Price (Low to High)')),
-                    DropdownMenuItem(value: 'price_desc', child: Text('Price (High to Low)')),
+                    DropdownMenuItem(
+                        value: 'price_asc', child: Text('Price (Low to High)')),
+                    DropdownMenuItem(
+                        value: 'price_desc',
+                        child: Text('Price (High to Low)')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -187,121 +239,178 @@ class _FoodPageGuestState extends State<FoodPageGuest> {
             child: FutureBuilder<List<Food>>(
               future: fetchFood(request),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final sortedAndFilteredFoods = _filterAndSortFoods(snapshot.data!);
-
-                  if (sortedAndFilteredFoods.isEmpty) {
-                    return const Center(
-                      child: Text('No matching foods found'),
-                    );
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.7,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No food items found",
+                      style: TextStyle(
+                        color: Color(0xff59A96A),
+                        fontSize: 20,
                       ),
-                      itemCount: sortedAndFilteredFoods.length,
-                      itemBuilder: (context, index) {
-                        var food = sortedAndFilteredFoods[index];
-                        return Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
-                                ),
-                                child: Image.network(
-                                  food.fields.image,
+                    ),
+                  );
+                }
+
+                List<Food> filteredFoods = _filterAndSortFoods(snapshot.data!);
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: filteredFoods.length,
+                  itemBuilder: (context, index) {
+                    final food = filteredFoods[index];
+                    return Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image with loading and error handling
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            child: Image.network(
+                              food.fields.image,
+                              height: 120,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
                                   height: 120,
                                   width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 120,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.broken_image),
-                                    );
-                                  },
+                                  color: Colors.grey[200],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.restaurant,
+                                        size: 32,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Image not available',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                      color: const Color(0xFFAB4A2F),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  food.fields.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Text(
+                                  'By ${food.fields.vendorName}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Rp ${food.fields.price}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFAB4A2F),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
                                   children: [
-                                    Text(
-                                      food.fields.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'By ${food.fields.vendorName}',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Rp ${food.fields.price.toString()}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFFAB4A2F),
+                                      child: Text(
+                                        food.fields.category
+                                            .toString()
+                                            .split('.')
+                                            .last,
+                                        style: const TextStyle(fontSize: 12),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          food.fields.category.toString().split('.').last,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                        Text(
-                                          food.fields.flavor.toString().split('.').last,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        food.fields.flavor
+                                            .toString()
+                                            .split('.')
+                                            .last,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
+                        ],
+                      ),
+                    );
+                  },
                 );
               },
             ),
