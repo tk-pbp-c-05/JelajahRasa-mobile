@@ -290,6 +290,19 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
                                         ),
                                       );
                                     }
+                                    // final updatedDish = await Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //       builder: (context) =>
+                                    //           EditFavDishFormPage(dish: dish),
+                                    //     ),
+                                    //   );
+                                    //   if (updatedDish != null) {
+                                    //     setState(() {
+                                    //       dishes[index] = updatedDish;
+                                    //     });
+                                    //   }
+                                     
                                   },
                                 ),
                                 IconButton(
@@ -321,3 +334,4 @@ class _ShowFavoritePageState extends State<ShowFavorite> {
     );
   }
 }
+

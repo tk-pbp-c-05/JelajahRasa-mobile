@@ -245,7 +245,7 @@ class _EditFavDishFormPageState extends State<EditFavDishFormPage> {
                   ),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      final response = await request.postJson(
+                      final response = await request.post(
                         "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/MyFavoriteDishes/edit-flutter/${widget.dish.pk}/",
                         jsonEncode(<String, String>{
                           'name': _nameController.text,
