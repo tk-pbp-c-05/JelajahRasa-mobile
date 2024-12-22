@@ -247,7 +247,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       }
 
                       final response = await request.postJson(
-                        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id//auth/register/",
+                        "https://daffa-desra-jelajahrasa.pbp.cs.ui.ac.id/auth/register/",
                         jsonEncode({
                           "username": username,
                           "first_name": firstName,
@@ -256,6 +256,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           "password1": password1,
                           "password2": password2,
                           "admin_code": adminCode,
+                          "image_url":
+                              "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541",
                         }),
                       );
 
