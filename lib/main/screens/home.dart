@@ -359,17 +359,19 @@ class HomePageContent extends StatelessWidget {
               color: Color(0xFFFAE7E0),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   isAdmin
                       ? "Welcome Back, Admin"
-                      : "Welcome Back, ${request.jsonData['username'] ?? 'User'}",
+                      : request.loggedIn
+                          ? "Welcome Back, ${request.jsonData['username']}"
+                          : "Welcome, guest user!",
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFFAB4A2F),
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -384,21 +386,52 @@ class HomePageContent extends StatelessWidget {
                     _buildIconButton(
                       icon: FontAwesomeIcons.users,
                       label: 'Community',
-                      onTap: () {},
+                      onTap: () {
+                        if (!request.loggedIn) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/login',
+                            (route) => false,
+                          );
+                        }
+                      },
                       context: context,
                     ),
                     _buildIconButton(
                       icon: FontAwesomeIcons.heart,
                       label: 'Favourites',
-                      onTap: () {},
+                      onTap: () {
+                        if (!request.loggedIn) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/login',
+                            (route) => false,
+                          );
+                        }
+                      },
                       context: context,
                     ),
                     _buildIconButton(
                       icon: FontAwesomeIcons.plus,
                       label: 'Add Dish',
-                      onTap: () {},
+                      onTap: () {
+                        if (!request.loggedIn) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/login',
+                            (route) => false,
+                          );
+                        }
+                      },
                       context: context,
                     ),
+                    if (isAdmin)
+                      _buildIconButton(
+                        icon: Icons.report,
+                        label: 'Reports',
+                        onTap: () {},
+                        context: context,
+                      ),
                   ],
                 ),
               ],
@@ -461,21 +494,43 @@ class HomePageContent extends StatelessWidget {
           child: IconButton(
             icon: Icon(icon, color: Colors.white),
             onPressed: () {
-              if (label == 'Catalogue') {
-                Navigator.push(
+              final request = context.read<CookieRequest>();
+
+              // Check if user is not logged in for protected routes
+              if (!request.loggedIn &&
+                  (label == 'Community' ||
+                      label == 'Favourites' ||
+                      label == 'Add Dish')) {
+                Navigator.pushNamedAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const FoodPage()),
+                  '/login',
+                  (route) => false,
                 );
-              } else {
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                    SnackBar(
-                      content: Text("Opening $label..."),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
-                onTap();
+                return;
+              }
+
+              // Get the parent Scaffold's state to access _currentIndex
+              final _MyHomePageState? homeState =
+                  context.findAncestorStateOfType<_MyHomePageState>();
+
+              if (homeState != null) {
+                switch (label) {
+                  case 'Catalogue':
+                    homeState.setState(() => homeState._currentIndex = 1);
+                    break;
+                  case 'Community':
+                    homeState.setState(() => homeState._currentIndex = 2);
+                    break;
+                  case 'Favourites':
+                    homeState.setState(() => homeState._currentIndex = 3);
+                    break;
+                  case 'Add Dish':
+                    homeState.setState(() => homeState._currentIndex = 4);
+                    break;
+                  case 'Reports':
+                    homeState.setState(() => homeState._currentIndex = 5);
+                    break;
+                }
               }
             },
           ),
